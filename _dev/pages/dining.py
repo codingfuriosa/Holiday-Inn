@@ -2,6 +2,9 @@
 BODY = """
   <section class="section">
     <div class="container">
+      <div class="section-head">
+        <h2>Where to Eat &amp; Drink</h2>
+      </div>
       <div class="grid grid-3">
 
         <div class="card">

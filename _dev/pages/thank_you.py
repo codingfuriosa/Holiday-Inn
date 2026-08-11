@@ -9,7 +9,8 @@ def render(header_html, footer_html, gtm_head="", gtm_body=""):
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Thank You | Holiday Inn Kolkata Airport</title>
 <meta name="description" content="Thank you for your enquiry at Holiday Inn Kolkata Airport.">
-<link rel="icon" href="assets/icons/hi_logo.svg" type="image/svg+xml">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="assets/icons/favicon.png" type="image/png">
 <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>

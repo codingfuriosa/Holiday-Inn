@@ -2,6 +2,10 @@
 BODY = """
   <section class="section">
     <div class="container">
+      <div class="section-head">
+        <h2>Room Types</h2>
+        <p>Spacious, air-conditioned rooms across 6 floors.</p>
+      </div>
       <div class="grid grid-2">
 
         <div class="card">
@@ -43,6 +47,9 @@ BODY = """
 
   <section class="section section-alt">
     <div class="container">
+      <div class="section-head">
+        <h2>In-Room Amenities</h2>
+      </div>
       <div class="grid grid-3">
         <div class="amenity-block">
           <h3>Included with every stay</h3>

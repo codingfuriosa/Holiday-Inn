@@ -60,7 +60,16 @@
         var selector = el.getAttribute("data-scroll-target");
         var target = document.querySelector(selector);
         if (target) {
-          target.scrollIntoView({ behavior: "smooth", block: "start" });
+          // The site header is sticky (position: sticky; top: 0), so a plain
+          // scrollIntoView({block:"start"}) lines the target's top edge up
+          // with the viewport's top edge -- which is exactly where the fixed
+          // header sits, covering the target and leaving whatever comes
+          // after it (e.g. the Overview section) visible instead. Compute
+          // the header's live height and scroll to a position that clears it.
+          var header = document.querySelector(".site-header");
+          var headerHeight = header ? header.getBoundingClientRect().height : 0;
+          var targetTop = target.getBoundingClientRect().top + window.pageYOffset;
+          window.scrollTo({ top: targetTop - headerHeight - 16, behavior: "smooth" });
         } else {
           window.location.href = "index.html" + selector;
         }

@@ -5,6 +5,11 @@ import os
 ROOT = os.path.dirname(os.path.abspath(__file__))
 SITE_ROOT = os.path.dirname(ROOT)
 
+# Live domain, used to build absolute URLs for canonical tags, Open Graph,
+# Twitter Cards, JSON-LD structured data, robots.txt and sitemap.xml.
+BASE_URL = "https://holidayinnkolairport.com"
+DEFAULT_OG_IMAGE = "holiday-inn-kolkata-6541707615-2x1.jpg"
+
 NAV_ITEMS = [
     ("offers.html", "Offers"),
     ("rooms.html", "Rooms"),
@@ -35,9 +40,14 @@ def header(current):
   <a class="skip-link" href="#main">Skip to main content</a>
   <header class="site-header">
     <div class="container header-inner">
-      <a href="index.html" class="logo-link" aria-label="Holiday Inn Kolkata Airport - Home">
-        <img src="assets/icons/hi_logo.svg" alt="Holiday Inn by IHG">
-      </a>
+      <div class="logo-group">
+        <a href="index.html" class="logo-link" aria-label="Holiday Inn Kolkata Airport - Home">
+          <img src="assets/icons/hi_logo.svg" alt="Holiday Inn by IHG">
+        </a>
+        <a href="tel:+913366996699" class="call-link" aria-label="Call Holiday Inn Kolkata Airport">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.02-.24c1.12.37 2.33.57 3.57.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1C10.61 21 3 13.39 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.24.2 2.45.57 3.57a1 1 0 0 1-.25 1.02l-2.2 2.2Z"/></svg>
+        </a>
+      </div>
       <nav class="main-nav" aria-label="Primary">
 {nav}
       </nav>
@@ -162,9 +172,9 @@ def footer():
         <img src="assets/icons/hi_logo.svg" alt="Holiday Inn by IHG">
         <p>Holiday Inn Kolkata Airport &mdash; Biswa Bangla Sarani, Rajarhat, Near City Centre 2, Kolkata, 700136, India.</p>
         <div class="footer-social">
-          <a href="https://www.facebook.com/" target="_blank" rel="noopener" aria-label="Facebook">{fb}</a>
-          <a href="https://www.x.com/" target="_blank" rel="noopener" aria-label="X (Twitter)">{x}</a>
-          <a href="https://www.instagram.com/" target="_blank" rel="noopener" aria-label="Instagram">{ig}</a>
+          <a href="https://www.facebook.com/holidayinnkolairport/" target="_blank" rel="noopener" aria-label="Facebook">{fb}</a>
+          <a href="https://x.com/holidayinnkol" target="_blank" rel="noopener" aria-label="X (Twitter)">{x}</a>
+          <a href="https://www.instagram.com/holidayinnkolkataairport/" target="_blank" rel="noopener" aria-label="Instagram">{ig}</a>
         </div>
         <div class="footer-badges">
           <a href="https://www.ihg.com/content/us/en/support/mobile" target="_blank" rel="noopener"><img src="assets/icons/app-store-badge.png" alt="Download on the App Store"></a>
@@ -245,9 +255,70 @@ GTM_BODY = """<!-- Google Tag Manager (noscript) -->
 height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->""".format(gtm_id=GTM_ID)
 
-def page(title, description, current, hero_html, body_html, extra_head="", include_lightbox=False, include_widget=False):
+# Hotel structured data (schema.org JSON-LD) - helps Google show rich hotel
+# results (star rating box, amenities, price range) instead of a plain blue
+# link. Placed on the homepage only, which is standard practice.
+HOTEL_SCHEMA = """<script type="application/ld+json">
+{{
+  "@context": "https://schema.org",
+  "@type": "Hotel",
+  "name": "Holiday Inn Kolkata Airport",
+  "description": "A business hotel 4.7 km from Netaji Subhash Chandra Bose International Airport, with 137 rooms, a rooftop pool, fitness center and two on-site restaurants.",
+  "url": "{base_url}/",
+  "telephone": "+91-33-6699-6699",
+  "priceRange": "$$",
+  "image": "{base_url}/assets/images/holiday-inn-kolkata-6541707615-2x1.jpg",
+  "address": {{
+    "@type": "PostalAddress",
+    "streetAddress": "Biswa Bangla Sarani, Rajarhat, Near City Centre 2",
+    "addressLocality": "Kolkata",
+    "postalCode": "700136",
+    "addressCountry": "IN"
+  }},
+  "geo": {{
+    "@type": "GeoCoordinates",
+    "latitude": 22.6198,
+    "longitude": 88.4497
+  }},
+  "checkinTime": "15:00",
+  "checkoutTime": "12:00",
+  "numberOfRooms": 137,
+  "amenityFeature": [
+    {{"@type": "LocationFeatureSpecification", "name": "Free Wi-Fi", "value": true}},
+    {{"@type": "LocationFeatureSpecification", "name": "Outdoor Pool", "value": true}},
+    {{"@type": "LocationFeatureSpecification", "name": "Fitness Center", "value": true}},
+    {{"@type": "LocationFeatureSpecification", "name": "On-site Parking", "value": true}},
+    {{"@type": "LocationFeatureSpecification", "name": "Airport Shuttle", "value": true}}
+  ],
+  "sameAs": [
+    "https://www.facebook.com/holidayinnkolairport/",
+    "https://www.instagram.com/holidayinnkolkataairport/",
+    "https://x.com/holidayinnkol"
+  ]
+}}
+</script>""".format(base_url=BASE_URL)
+
+def page(title, description, current, hero_html, body_html, extra_head="", include_lightbox=False, include_widget=False, og_image=None, noindex=False):
     lightbox_html = LIGHTBOX if include_lightbox else ""
     widget_html = booking_widget() if include_widget else ""
+    canonical_path = "/" if current == "index.html" else "/" + current
+    canonical_url = BASE_URL + canonical_path
+    og_image_url = BASE_URL + "/assets/images/" + (og_image or DEFAULT_OG_IMAGE)
+    robots_tag = '<meta name="robots" content="noindex, nofollow">' if noindex else '<meta name="robots" content="index, follow">'
+    seo_head = """<link rel="canonical" href="{canonical}">
+{robots}
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Holiday Inn Kolkata Airport">
+<meta property="og:title" content="{title}">
+<meta property="og:description" content="{description}">
+<meta property="og:url" content="{canonical}">
+<meta property="og:image" content="{og_image}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{title}">
+<meta name="twitter:description" content="{description}">
+<meta name="twitter:image" content="{og_image}">""".format(
+        canonical=canonical_url, robots=robots_tag, title=title, description=description, og_image=og_image_url,
+    )
     return """<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -256,7 +327,8 @@ def page(title, description, current, hero_html, body_html, extra_head="", inclu
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{title}</title>
 <meta name="description" content="{description}">
-<link rel="icon" href="assets/icons/hi_logo.svg" type="image/svg+xml">
+<link rel="icon" href="assets/icons/favicon.png" type="image/png">
+{seo_head}
 {fonts}
 <link rel="stylesheet" href="css/styles.css">
 {extra_head}
@@ -281,6 +353,7 @@ def page(title, description, current, hero_html, body_html, extra_head="", inclu
         gtm_body=GTM_BODY,
         title=title,
         description=description,
+        seo_head=seo_head,
         fonts=FONT_LINKS,
         extra_head=extra_head,
         header=header(current),
@@ -292,17 +365,50 @@ def page(title, description, current, hero_html, body_html, extra_head="", inclu
         lightbox=lightbox_html,
     )
 
-def hero(eyebrow, h1, lead, image, small=False):
+def hero(eyebrow, h1, lead, image, small=False, tagline=None, rating=None, has_widget=False):
     cls = "hero hero-small" if small else "hero"
+    if has_widget:
+        cls += " hero-has-widget"
+    # The tagline used to live inside .hero-content, stacked right under the
+    # H1 -- but on a busy photo it kept getting lost against the image, no
+    # matter how big/bold it was made. It now renders as its own solid-color
+    # band directly below the hero photo (still above the booking widget),
+    # so it has guaranteed contrast instead of fighting the background image.
+    # When the widget follows (has_widget=True), the widget's own -46px
+    # negative margin pulls it up into whatever sits directly above it --
+    # which is now this band instead of the hero photo -- so the band needs
+    # extra bottom padding (see .hero-tagline-band-has-widget) to keep its
+    # text clear of that overlap.
+    band_class = "hero-tagline-band hero-tagline-band-has-widget" if has_widget else "hero-tagline-band"
+    tagline_html = """
+  <div class="{1}">
+    <div class="container">
+      <p class="hero-tagline">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M2.5 19h19v2h-19v-2ZM12 2 5 8v4h1v6h3v-5h6v5h3v-6h1V8L12 2Z"/></svg>
+        {0}
+      </p>
+    </div>
+  </div>""".format(tagline, band_class) if tagline else ""
+    rating_badge = ""
+    if rating:
+        score = rating
+        fill_pct = round((score / 5.0) * 100, 1)
+        rating_badge = """<div class="hero-rating-badge">
+      <span class="stars" style="--fill:{fill}%"><span class="stars-fg">&#9733;&#9733;&#9733;&#9733;&#9733;</span></span>
+      <span class="rating-score">{score}<span class="rating-max">/5</span></span>
+      <span class="rating-label">Guest Rating</span>
+    </div>""".format(fill=fill_pct, score=score)
     return """
   <section class="{cls}" style="background-image:url('assets/images/{image}');">
+    {rating_badge}
     <div class="container hero-content">
       <div class="hero-eyebrow">{eyebrow}</div>
       <h1>{h1}</h1>
       <p class="lead">{lead}</p>
     </div>
   </section>
-""".format(cls=cls, image=image, eyebrow=eyebrow, h1=h1, lead=lead)
+  {tagline_html}
+""".format(cls=cls, image=image, eyebrow=eyebrow, h1=h1, lead=lead, tagline_html=tagline_html, rating_badge=rating_badge)
 
 def write(path, content):
     with open(os.path.join(SITE_ROOT, path), "w", encoding="utf-8") as f:
@@ -323,9 +429,14 @@ write("index.html", page(
         "Holiday Inn Kolkata Airport",
         "A business hotel just 4.7 km from CCU Airport, with easy access to New Town and Salt Lake Sector V.",
         "holiday-inn-kolkata-6541707615-2x1.jpg",
+        tagline="Just 10 Minutes from Kolkata Airport",
+        rating=4.3,
+        has_widget=True,
     ),
     home.BODY,
     include_widget=True,
+    extra_head=HOTEL_SCHEMA,
+    og_image="holiday-inn-kolkata-6541707615-2x1.jpg",
 ))
 
 write("offers.html", page(
@@ -387,5 +498,42 @@ write("photos.html", page(
 
 # Thank you page uses a different (minimal) layout
 write("thank-you.html", thank_you.render(header(""), footer(), gtm_head=GTM_HEAD, gtm_body=GTM_BODY))
+
+# ============================================================================
+# robots.txt + sitemap.xml
+# ============================================================================
+SITEMAP_PAGES = [
+    ("", "1.0"),  # homepage - served at "/"
+    ("offers.html", "0.8"),
+    ("rooms.html", "0.8"),
+    ("amenities.html", "0.7"),
+    ("dining.html", "0.6"),
+    ("local-area.html", "0.6"),
+    ("events.html", "0.6"),
+    ("photos.html", "0.5"),
+    # thank-you.html deliberately excluded - it's a transactional page
+    # reached only after a form submit, marked noindex, and shouldn't be
+    # something search engines send visitors to directly.
+]
+
+write("robots.txt", """User-agent: *
+Allow: /
+Disallow: /thank-you.html
+
+Sitemap: {base_url}/sitemap.xml
+""".format(base_url=BASE_URL))
+
+sitemap_entries = "\n".join(
+    """  <url>
+    <loc>{base_url}/{path}</loc>
+    <priority>{priority}</priority>
+  </url>""".format(base_url=BASE_URL, path=path, priority=priority)
+    for path, priority in SITEMAP_PAGES
+)
+write("sitemap.xml", """<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+{entries}
+</urlset>
+""".format(entries=sitemap_entries))
 
 print("\nBuild complete.")

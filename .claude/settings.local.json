@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(gh --version)",
+      "PowerShell(git ls-remote https://github.com/codingfuriosa/Holiday-Inn.git 2>&1)"
+    ]
+  }
+}

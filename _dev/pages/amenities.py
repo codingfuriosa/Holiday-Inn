@@ -14,6 +14,9 @@ BODY = """
         <div class="feature-card"><img src="assets/icons/icon-outline-wifi.svg" alt=""><span>Wi-Fi</span></div>
       </div>
 
+      <div class="section-head">
+        <h2>Amenities in Detail</h2>
+      </div>
       <div class="grid grid-2">
         <div class="amenity-block">
           <h3>Fitness Center</h3>

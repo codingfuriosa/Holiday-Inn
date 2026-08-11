@@ -42,6 +42,27 @@ step is still the one-time confirmation email described below — that's
 tied to your **ai@thejaingroup.com** inbox, not to where the site lives, so
 it's a one-time thing regardless of which host you pick.
 
+## SEO & sitemap
+
+Added the standard technical SEO foundation:
+
+- **`robots.txt`** and **`sitemap.xml`** at the site root, listing all 8
+  real pages (Thank You is deliberately excluded and marked `noindex` —
+  it's a transactional page reached only after a form submit, not something
+  search engines should send people to directly).
+- **Canonical tag** on every page (prevents duplicate-content issues, e.g.
+  between `/` and `/index.html`).
+- **Open Graph + Twitter Card tags** on every page, so links shared on
+  Facebook/WhatsApp/X/etc. show a proper title, description and image
+  instead of a bare link.
+- **Hotel structured data** (schema.org JSON-LD) on the homepage — this is
+  what lets Google potentially show a richer result (amenities, price
+  range, star rating box) instead of a plain blue link. It includes the
+  address, phone, coordinates, amenities and your social profiles.
+- Once the site is live, submit `sitemap.xml` in Google Search Console
+  and Bing Webmaster Tools — that's the one step I can't do for you, since
+  it needs your own account.
+
 ## Google Tag Manager
 
 Your GTM container (`GTM-P3Q3MG9C`) is installed on **every page, including
@@ -93,6 +114,34 @@ If you'd rather not wait for real traffic to trigger that first email, just
 open the site live and submit the form yourself once with test details.
 
 ## What I changed in the newest round of feedback
+
+- **Tagline moved off the hero photo entirely.** "Just 10 Minutes from
+  Kolkata Airport" kept getting lost against the busy lobby photo no matter
+  how big/bold it was made, so it now lives in its own solid dark-green band
+  directly under the hero photo (and above the booking widget) — guaranteed
+  white-on-green contrast instead of fighting a background image. This also
+  surfaced and fixed a real overlap bug: the booking widget's own -46px
+  "float up" effect, previously overlapping into the hero photo, was now
+  overlapping into the bottom of this new band and covering the tagline
+  text — fixed by giving the band enough bottom padding to absorb that
+  overlap as blank space instead of covering the words.
+- **Favicon swapped to the real Holiday Inn "H" mark.** The previous fix
+  used the navy IHG corporate square (since the URL lives under
+  ihg.com/holidayinn/...) — turns out that was the wrong one. It's now the
+  brand's own green rounded-square icon with the white "H" mark, pulled
+  from Holiday Inn's own cached site icon (verified identical across three
+  independent icon-lookup services, so it's the genuine asset, not a
+  recreation).
+- **"Book Now" no longer lands on the Overview section.** Root cause: the
+  navbar is sticky (pinned to the top of the screen), so scrolling the
+  booking widget's top edge to the very top of the screen meant the sticky
+  header was then sitting on top of it, hiding most of the widget and
+  leaving the Overview section as the first fully-visible thing below the
+  header. Every "Book Now" / "Best Rates Guaranteed" button (header, mobile
+  bottom bar) now scrolls to a position that clears the header's actual
+  height first, on both desktop and mobile.
+
+## What I changed in an earlier round (sticky nav, hamburger X, GTM)
 
 - **Navbar is now actually sticky.** Root cause: `position: sticky` was set
   on the inner header row, but its direct parent was exactly the same

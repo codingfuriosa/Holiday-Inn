@@ -2,6 +2,10 @@
 BODY = """
   <section class="section">
     <div class="container">
+      <div class="section-head">
+        <h2>Current Offers</h2>
+        <p>Save on your next stay with these limited-time rates.</p>
+      </div>
       <div class="grid grid-2">
 
         <div class="card">
