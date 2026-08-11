@@ -333,6 +333,19 @@ p { margin: 0 0 1em; overflow-wrap: break-word; }
 .overview-split { display: grid; grid-template-columns: 1.1fr .9fr; gap: 40px; align-items: center; }
 .overview-split img { border-radius: var(--radius); box-shadow: var(--shadow-sm); }
 
+/* Tagline, living inside the same Overview container/section as the
+   heading and copy (not a separate band/section) -- a full-width kicker
+   line above the two-column split, set off with its own divider. */
+.overview-tagline {
+  grid-column: 1 / -1;
+  display: flex; align-items: center; gap: 10px;
+  font-weight: 700; font-size: clamp(1.05rem, 2.2vw, 1.3rem);
+  color: var(--hi-green-darker);
+  margin: 0 0 28px; padding-bottom: 20px;
+  border-bottom: 1px solid var(--hi-border);
+}
+.overview-tagline svg { color: var(--hi-gold); flex-shrink: 0; }
+
 .card {
   background: #fff;
   border: 1px solid var(--hi-border);

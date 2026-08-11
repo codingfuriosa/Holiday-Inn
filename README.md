@@ -122,9 +122,12 @@ open the site live and submit the form yourself once with test details.
   plain white section right after the booking widget and before Overview,
   matching the real site's habit of pairing the heading with the rating,
   without crowding either the photo or the heading text (which is what
-  caused the mobile collision in an earlier round). The "10 Minutes from
-  Kolkata Airport" tagline has been removed entirely per this request — say
-  the word if you'd like it back somewhere else.
+  caused the mobile collision in an earlier round).
+- **Tagline is back, now living inside the Overview section itself** rather
+  than as its own separate band/section. "Just 10 Minutes from Kolkata
+  Airport" is the first line inside the Overview container, above the
+  "Business hotel near CCU Airport..." heading, set off with its own
+  divider line — part of that section's content, not a standalone strip.
 - **Favicon swapped to the real Holiday Inn "H" mark.** The previous fix
   used the navy IHG corporate square (since the URL lives under
   ihg.com/holidayinn/...) — turns out that was the wrong one. It's now the
