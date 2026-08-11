@@ -119,6 +119,20 @@ def booking_widget():
 # no-account-needed email relay. js/main.js fills in the action URL and the
 # _next redirect at runtime from js/config.js, and validates every field
 # before letting the native submit go through (see main.js handleSubmit).
+#
+# Every field below carries two attributes on purpose:
+#   - name="..."   is what actually shows up as the row label in the emailed
+#                   table (FormSubmit renders whatever you put here verbatim),
+#                   so these are written as clean, human-readable labels.
+#   - data-field="..." is a stable hook main.js uses to find/fill/enable each
+#                   field, completely decoupled from the label text above.
+# main.js also disables (rather than blanks out) whichever of Arrival /
+# Departure / Rooms & Guests / Interested In don't apply to a given
+# enquiry -- a disabled field is left out of the submitted data entirely, so
+# a plain "Book Now" from the booking widget emails a different, shorter
+# table than an "Enquire Now" from an offer/room/event card, instead of both
+# showing every row with "Not specified" filled in for whichever half
+# doesn't apply.
 MODAL = """
   <div class="modal-overlay" id="booking-modal">
     <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modal-title">
@@ -127,34 +141,35 @@ MODAL = """
       <p class="modal-sub">Tell us a little about your stay and our reservations team will confirm availability and the best rate for you.</p>
       <div class="form-summary"></div>
       <form novalidate method="POST" id="enquiry-form">
-        <input type="hidden" name="_subject" value="New booking enquiry - Holiday Inn Kolkata Airport">
+        <input type="hidden" name="_subject" value="New Enquiry - Holiday Inn Kolkata Airport">
         <input type="hidden" name="_template" value="table">
         <input type="hidden" name="_captcha" value="false">
         <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
         <input type="hidden" name="_next" value="">
-        <input type="hidden" name="Arrival">
-        <input type="hidden" name="Departure">
-        <input type="hidden" name="Rooms_and_Guests">
-        <input type="hidden" name="Offer_or_Room">
-        <input type="hidden" name="Page">
+        <input type="hidden" name="Enquiry Type" data-field="enquiry_type">
+        <input type="hidden" name="Arrival Date" data-field="arrival">
+        <input type="hidden" name="Departure Date" data-field="departure">
+        <input type="hidden" name="Rooms &amp; Guests" data-field="rooms_guests">
+        <input type="hidden" name="Interested In" data-field="interested_in">
+        <input type="hidden" name="Submitted From Page" data-field="page">
         <p class="form-error"></p>
         <div class="form-group">
           <label for="f-name">Full Name *</label>
-          <input type="text" id="f-name" name="name" autocomplete="name" placeholder="e.g. Priya Sharma" required>
+          <input type="text" id="f-name" name="Full Name" data-field="name" autocomplete="name" placeholder="e.g. Priya Sharma" required>
           <p class="field-error" data-for="name"></p>
         </div>
         <div class="form-group">
           <label for="f-phone">Phone Number *</label>
-          <input type="tel" id="f-phone" name="phone" autocomplete="tel" inputmode="numeric" maxlength="10" placeholder="e.g. 9876543210" required>
+          <input type="tel" id="f-phone" name="Phone Number" data-field="phone" autocomplete="tel" inputmode="numeric" maxlength="10" placeholder="e.g. 9876543210" required>
           <p class="field-error" data-for="phone"></p>
         </div>
         <div class="form-group">
           <label for="f-email">Email Address *</label>
-          <input type="email" id="f-email" name="email" autocomplete="email" placeholder="e.g. you@example.com" required>
+          <input type="email" id="f-email" name="Email Address" data-field="email" autocomplete="email" placeholder="e.g. you@example.com" required>
           <p class="field-error" data-for="email"></p>
         </div>
         <div class="agreement">
-          <input type="checkbox" id="f-agree" name="agree" checked required>
+          <input type="checkbox" id="f-agree" data-field="agree" checked required>
           <label for="f-agree">I agree to be contacted by Holiday Inn Kolkata Airport by phone, SMS or email about this enquiry. *</label>
         </div>
         <button type="submit" class="btn btn-primary btn-block">Book Now</button>
@@ -379,21 +394,30 @@ def hero(eyebrow, h1, lead, image, small=False):
   </section>
 """.format(cls=cls, image=image, eyebrow=eyebrow, h1=h1, lead=lead)
 
-def rating_band(score):
-    """A standalone guest-rating strip, sat between the booking widget and
-    the Overview section -- its own dedicated section rather than crammed
-    onto the hero photo or into the hero text stack, where it kept
-    colliding with the heading/tagline on narrow screens."""
+def tagline_rating_section(tagline, score):
+    """A standalone, centered section sat between the booking widget and the
+    Overview section: the tagline up top with its own divider underneath,
+    then the guest rating below that -- its own dedicated section rather
+    than crammed onto the hero photo, into the hero text stack, or inside
+    another section's container, where it kept colliding with other
+    content on narrow screens."""
     fill_pct = round((score / 5.0) * 100, 1)
     return """
-  <section class="guest-rating-band">
-    <div class="container guest-rating-inner">
-      <span class="stars" style="--fill:{fill}%"><span class="stars-fg">&#9733;&#9733;&#9733;&#9733;&#9733;</span></span>
-      <span class="rating-score">{score}<span class="rating-max">/5</span></span>
-      <span class="rating-label">Guest Rating</span>
+  <section class="tagline-rating-section">
+    <div class="container tagline-rating-inner">
+      <p class="tagline-centered">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M2.5 19h19v2h-19v-2ZM12 2 5 8v4h1v6h3v-5h6v5h3v-6h1V8L12 2Z"/></svg>
+        {tagline}
+      </p>
+      <div class="tagline-divider"></div>
+      <div class="rating-row">
+        <span class="stars" style="--fill:{fill}%"><span class="stars-fg">&#9733;&#9733;&#9733;&#9733;&#9733;</span></span>
+        <span class="rating-score">{score}<span class="rating-max">/5</span></span>
+        <span class="rating-label">Guest Rating</span>
+      </div>
     </div>
   </section>
-""".format(fill=fill_pct, score=score)
+""".format(tagline=tagline, fill=fill_pct, score=score)
 
 def write(path, content):
     with open(os.path.join(SITE_ROOT, path), "w", encoding="utf-8") as f:
@@ -417,7 +441,7 @@ write("index.html", page(
     ),
     home.BODY,
     include_widget=True,
-    after_widget_html=rating_band(4.3),
+    after_widget_html=tagline_rating_section("Just 10 Minutes from Kolkata Airport", 4.3),
     extra_head=HOTEL_SCHEMA,
     og_image="holiday-inn-kolkata-6541707615-2x1.jpg",
 ))

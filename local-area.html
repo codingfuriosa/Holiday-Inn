@@ -194,34 +194,35 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <p class="modal-sub">Tell us a little about your stay and our reservations team will confirm availability and the best rate for you.</p>
       <div class="form-summary"></div>
       <form novalidate method="POST" id="enquiry-form">
-        <input type="hidden" name="_subject" value="New booking enquiry - Holiday Inn Kolkata Airport">
+        <input type="hidden" name="_subject" value="New Enquiry - Holiday Inn Kolkata Airport">
         <input type="hidden" name="_template" value="table">
         <input type="hidden" name="_captcha" value="false">
         <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
         <input type="hidden" name="_next" value="">
-        <input type="hidden" name="Arrival">
-        <input type="hidden" name="Departure">
-        <input type="hidden" name="Rooms_and_Guests">
-        <input type="hidden" name="Offer_or_Room">
-        <input type="hidden" name="Page">
+        <input type="hidden" name="Enquiry Type" data-field="enquiry_type">
+        <input type="hidden" name="Arrival Date" data-field="arrival">
+        <input type="hidden" name="Departure Date" data-field="departure">
+        <input type="hidden" name="Rooms &amp; Guests" data-field="rooms_guests">
+        <input type="hidden" name="Interested In" data-field="interested_in">
+        <input type="hidden" name="Submitted From Page" data-field="page">
         <p class="form-error"></p>
         <div class="form-group">
           <label for="f-name">Full Name *</label>
-          <input type="text" id="f-name" name="name" autocomplete="name" placeholder="e.g. Priya Sharma" required>
+          <input type="text" id="f-name" name="Full Name" data-field="name" autocomplete="name" placeholder="e.g. Priya Sharma" required>
           <p class="field-error" data-for="name"></p>
         </div>
         <div class="form-group">
           <label for="f-phone">Phone Number *</label>
-          <input type="tel" id="f-phone" name="phone" autocomplete="tel" inputmode="numeric" maxlength="10" placeholder="e.g. 9876543210" required>
+          <input type="tel" id="f-phone" name="Phone Number" data-field="phone" autocomplete="tel" inputmode="numeric" maxlength="10" placeholder="e.g. 9876543210" required>
           <p class="field-error" data-for="phone"></p>
         </div>
         <div class="form-group">
           <label for="f-email">Email Address *</label>
-          <input type="email" id="f-email" name="email" autocomplete="email" placeholder="e.g. you@example.com" required>
+          <input type="email" id="f-email" name="Email Address" data-field="email" autocomplete="email" placeholder="e.g. you@example.com" required>
           <p class="field-error" data-for="email"></p>
         </div>
         <div class="agreement">
-          <input type="checkbox" id="f-agree" name="agree" checked required>
+          <input type="checkbox" id="f-agree" data-field="agree" checked required>
           <label for="f-agree">I agree to be contacted by Holiday Inn Kolkata Airport by phone, SMS or email about this enquiry. *</label>
         </div>
         <button type="submit" class="btn btn-primary btn-block">Book Now</button>

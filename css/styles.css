@@ -217,22 +217,32 @@ p { margin: 0 0 1em; overflow-wrap: break-word; }
 .rating-max { font-weight: 400; color: var(--hi-grey); font-size: .85rem; }
 .rating-label { display: block; color: var(--hi-grey); font-size: .68rem; text-transform: uppercase; letter-spacing: .05em; margin-top: 2px; }
 
-/* Guest rating band - its own dedicated section between the booking widget
-   and the Overview section (matches the real site's heading-then-rating
-   pairing in spirit, without crowding either the hero photo or the
-   heading text where it kept colliding on narrow screens). */
-.guest-rating-band {
+/* Tagline + guest rating - its own dedicated, centered section between the
+   booking widget and the Overview section (matches the real site's
+   heading-then-rating pairing in spirit, without crowding either the hero
+   photo or the heading text where it kept colliding on narrow screens). */
+.tagline-rating-section {
   background: #fff;
   border-bottom: 1px solid var(--hi-border);
-  padding: 22px 0;
+  padding: 32px 0;
 }
-.guest-rating-inner {
+.tagline-rating-inner {
+  display: flex; flex-direction: column; align-items: center; text-align: center; gap: 18px;
+}
+.tagline-centered {
+  display: flex; align-items: center; gap: 10px; margin: 0;
+  font-weight: 700; font-size: clamp(1.2rem, 2.8vw, 1.6rem);
+  color: var(--hi-green-darker);
+}
+.tagline-centered svg { color: var(--hi-gold); flex-shrink: 0; }
+.tagline-divider { width: 64px; height: 3px; background: var(--hi-gold); border-radius: 2px; }
+.rating-row {
   display: flex; align-items: center; justify-content: center;
   flex-wrap: wrap; gap: 10px 14px; text-align: center;
 }
-.guest-rating-inner .stars { font-size: 1.5rem; }
-.guest-rating-inner .rating-score { display: inline; font-size: 1.3rem; margin-top: 0; }
-.guest-rating-inner .rating-label {
+.rating-row .stars { font-size: 1.5rem; }
+.rating-row .rating-score { display: inline; font-size: 1.3rem; margin-top: 0; }
+.rating-row .rating-label {
   display: inline; margin-top: 0; padding-left: 14px; border-left: 1px solid var(--hi-border);
 }
 
@@ -332,19 +342,6 @@ p { margin: 0 0 1em; overflow-wrap: break-word; }
 
 .overview-split { display: grid; grid-template-columns: 1.1fr .9fr; gap: 40px; align-items: center; }
 .overview-split img { border-radius: var(--radius); box-shadow: var(--shadow-sm); }
-
-/* Tagline, living inside the same Overview container/section as the
-   heading and copy (not a separate band/section) -- a full-width kicker
-   line above the two-column split, set off with its own divider. */
-.overview-tagline {
-  grid-column: 1 / -1;
-  display: flex; align-items: center; gap: 10px;
-  font-weight: 700; font-size: clamp(1.05rem, 2.2vw, 1.3rem);
-  color: var(--hi-green-darker);
-  margin: 0 0 28px; padding-bottom: 20px;
-  border-bottom: 1px solid var(--hi-border);
-}
-.overview-tagline svg { color: var(--hi-gold); flex-shrink: 0; }
 
 .card {
   background: #fff;
@@ -588,9 +585,10 @@ p { margin: 0 0 1em; overflow-wrap: break-word; }
   .hero-content { padding-top: 30px; padding-bottom: 26px; }
   .hero p.lead { font-size: .95rem; }
   .logo-link img { height: 34px; }
-  .guest-rating-band { padding: 16px 0; }
-  .guest-rating-inner { gap: 6px 10px; }
-  .guest-rating-inner .stars { font-size: 1.15rem; }
-  .guest-rating-inner .rating-score { font-size: 1.05rem; }
-  .guest-rating-inner .rating-label { font-size: .62rem; padding-left: 10px; }
+  .tagline-rating-section { padding: 24px 0; }
+  .tagline-rating-inner { gap: 14px; }
+  .rating-row { gap: 6px 10px; }
+  .rating-row .stars { font-size: 1.15rem; }
+  .rating-row .rating-score { font-size: 1.05rem; }
+  .rating-row .rating-label { font-size: .62rem; padding-left: 10px; }
 }

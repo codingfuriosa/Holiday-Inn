@@ -220,7 +220,7 @@
     }
 
     // Digits-only, max-10 phone field - strip anything else as the user types.
-    var phoneField = formEl.querySelector('input[name="phone"]');
+    var phoneField = formEl.querySelector('[data-field="phone"]');
     if (phoneField) {
       phoneField.addEventListener("input", function () {
         phoneField.value = phoneField.value.replace(/[^0-9]/g, "").slice(0, 10);
@@ -242,36 +242,70 @@
     if (!modalEl) return;
     details = details || {};
     formEl.reset();
-    formEl.querySelector('input[name="agree"]').checked = true;
+    formEl.querySelector('[data-field="agree"]').checked = true;
     errorEl.classList.remove("show");
     errorEl.textContent = "";
     statusEl.textContent = "";
     clearFieldErrors();
 
+    // A submission from the booking widget itself always carries real
+    // arrival/departure dates; a "Book Now"/"Enquire Now" from an offer,
+    // room or event card never does (it only carries an offer name). That
+    // distinction is what decides which fields actually get emailed below.
+    var isBooking = !!(details.arrival || details.departure);
+
     var bits = [];
     if (details.arrival) bits.push("Arrival: " + details.arrival);
     if (details.departure) bits.push("Departure: " + details.departure);
     if (details.roomsGuests) bits.push(details.roomsGuests);
-    if (details.offer) bits.push("Offer: " + details.offer);
+    if (details.offer) bits.push("Enquiry: " + details.offer);
     summaryEl.textContent = bits.length ? bits.join(" | ") : "General enquiry";
 
-    setHidden("Arrival", details.arrival || "Not specified");
-    setHidden("Departure", details.departure || "Not specified");
-    setHidden("Rooms_and_Guests", details.roomsGuests || "Not specified");
-    setHidden("Offer_or_Room", details.offer || "General enquiry");
-    setHidden("Page", location.href);
+    // Disabled fields are left out of the submitted FormData entirely, so
+    // FormSubmit's emailed table only ever shows rows relevant to this
+    // particular enquiry -- a widget booking never shows a blank
+    // "Interested In" row, and an offer/room/event enquiry never shows
+    // "Not specified" Arrival/Departure/Rooms & Guests rows.
+    if (isBooking) {
+      setHidden("enquiry_type", "Booking Request");
+      setHidden("arrival", details.arrival || "");
+      setHidden("departure", details.departure || "");
+      setHidden("rooms_guests", details.roomsGuests || "");
+      disableField("interested_in");
+      setSubject("New Booking Request - Holiday Inn Kolkata Airport");
+    } else {
+      setHidden("enquiry_type", "General Enquiry");
+      setHidden("interested_in", details.offer || "General enquiry (via website)");
+      disableField("arrival");
+      disableField("departure");
+      disableField("rooms_guests");
+      setSubject("New Enquiry - Holiday Inn Kolkata Airport" + (details.offer ? " (" + details.offer + ")" : ""));
+    }
+    setHidden("page", location.href);
 
     modalEl.classList.add("open");
     document.body.style.overflow = "hidden";
     setTimeout(function () {
-      var nameField = formEl.querySelector('input[name="name"]');
+      var nameField = formEl.querySelector('[data-field="name"]');
       nameField && nameField.focus();
     }, 50);
   }
 
-  function setHidden(name, value) {
-    var el = formEl.querySelector('[name="' + name + '"]');
-    if (el) el.value = value;
+  function setHidden(field, value) {
+    var el = formEl.querySelector('[data-field="' + field + '"]');
+    if (!el) return;
+    el.disabled = false;
+    el.value = value;
+  }
+
+  function disableField(field) {
+    var el = formEl.querySelector('[data-field="' + field + '"]');
+    if (el) el.disabled = true;
+  }
+
+  function setSubject(text) {
+    var el = formEl.querySelector('[name="_subject"]');
+    if (el) el.value = text;
   }
 
   function closeBookingModal() {
@@ -292,16 +326,16 @@
   function setFieldError(name, message) {
     var msgEl = formEl.querySelector('.field-error[data-for="' + name + '"]');
     if (msgEl) msgEl.textContent = message;
-    var input = formEl.querySelector('[name="' + name + '"]');
+    var input = formEl.querySelector('[data-field="' + name + '"]');
     if (input) input.classList.add("invalid");
   }
 
   function validate() {
     clearFieldErrors();
-    var name = formEl.querySelector('input[name="name"]').value.trim();
-    var phone = formEl.querySelector('input[name="phone"]').value.trim();
-    var email = formEl.querySelector('input[name="email"]').value.trim();
-    var agree = formEl.querySelector('input[name="agree"]').checked;
+    var name = formEl.querySelector('[data-field="name"]').value.trim();
+    var phone = formEl.querySelector('[data-field="phone"]').value.trim();
+    var email = formEl.querySelector('[data-field="email"]').value.trim();
+    var agree = formEl.querySelector('[data-field="agree"]').checked;
     var ok = true;
 
     if (name.length < 2 || name.length > 60 || !NAME_RE.test(name)) {
@@ -340,9 +374,9 @@
       return;
     }
 
-    var name = formEl.querySelector('input[name="name"]').value.trim();
-    var phone = formEl.querySelector('input[name="phone"]').value.trim();
-    var email = formEl.querySelector('input[name="email"]').value.trim();
+    var name = formEl.querySelector('[data-field="name"]').value.trim();
+    var phone = formEl.querySelector('[data-field="phone"]').value.trim();
+    var email = formEl.querySelector('[data-field="email"]').value.trim();
     try {
       sessionStorage.setItem("hi_enquiry_name", name);
     } catch (err) { /* ignore */ }
@@ -377,9 +411,12 @@
           " with your details filled in - please hit send there.";
         errorEl.classList.add("show");
         // Same-tab mailto fallback (no popup window) so the enquiry still
-        // reaches an inbox even if the background request failed.
+        // reaches an inbox even if the background request failed. Reuses
+        // whichever subject openBookingModal already set for this specific
+        // enquiry (booking vs. offer/room/event), instead of a generic one.
         var toEmail = (window.SITE_CONFIG && window.SITE_CONFIG.TO_EMAIL) || "ai@thejaingroup.com";
-        var subject = encodeURIComponent("New booking enquiry - Holiday Inn Kolkata Airport");
+        var subjectField = formEl.querySelector('[name="_subject"]');
+        var subject = encodeURIComponent((subjectField && subjectField.value) || "New Enquiry - Holiday Inn Kolkata Airport");
         var body = encodeURIComponent(
           "Name: " + name + "\nPhone: " + phone + "\nEmail: " + email
         );

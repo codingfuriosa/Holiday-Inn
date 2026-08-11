@@ -115,19 +115,29 @@ open the site live and submit the form yourself once with test details.
 
 ## What I changed in the newest round of feedback
 
-- **Rating moved to its own strip between the booking widget and Overview.**
-  Removed the green tagline band under the hero photo and the floating
-  rating badge that sat on top of the hero image — both are gone now. In
-  their place, guest rating (stars + "4.3/5" + "Guest Rating") is its own
-  plain white section right after the booking widget and before Overview,
-  matching the real site's habit of pairing the heading with the rating,
-  without crowding either the photo or the heading text (which is what
-  caused the mobile collision in an earlier round).
-- **Tagline is back, now living inside the Overview section itself** rather
-  than as its own separate band/section. "Just 10 Minutes from Kolkata
-  Airport" is the first line inside the Overview container, above the
-  "Business hotel near CCU Airport..." heading, set off with its own
-  divider line — part of that section's content, not a standalone strip.
+- **Tagline + rating now share one centered section with a divider,**
+  between the booking widget and Overview. The tagline briefly lived inside
+  the Overview container itself, left-aligned to match that section's text
+  column — too small and easy to miss. It's back out on its own again:
+  "Just 10 Minutes from Kolkata Airport" centered and bigger, a short gold
+  divider line underneath, then the guest rating (stars, "4.3/5", "Guest
+  Rating") centered below that, all inside one dedicated section rather
+  than tucked into someone else's container.
+- **The enquiry email now looks genuinely different for a Booking vs. an
+  Enquiry, instead of the same messy table every time.** Previously every
+  submission emailed the same five rows regardless of type, so a real
+  booking (with real dates) showed a "General enquiry" row that didn't
+  apply, and an offer/room/event enquiry (no dates picked) showed three
+  "Not specified" rows that didn't apply either — plus the row labels
+  themselves were raw field names like `Rooms_and_Guests` and
+  `Offer_or_Room`. Now: a booking-widget submission emails Enquiry Type,
+  Arrival Date, Departure Date, Rooms & Guests, Submitted From Page, Full
+  Name, Phone Number, Email Address; an offer/room/event "Enquire Now"
+  emails Enquiry Type, Interested In, Submitted From Page, Full Name, Phone
+  Number, Email Address — no irrelevant rows either way, clean human-
+  readable labels throughout, and the email subject line itself now says
+  "New Booking Request" or "New Enquiry (Offer Name)" instead of always
+  reading "New booking enquiry."
 - **Favicon swapped to the real Holiday Inn "H" mark.** The previous fix
   used the navy IHG corporate square (since the URL lives under
   ihg.com/holidayinn/...) — turns out that was the wrong one. It's now the
