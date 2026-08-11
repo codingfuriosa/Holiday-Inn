@@ -298,7 +298,7 @@ HOTEL_SCHEMA = """<script type="application/ld+json">
 }}
 </script>""".format(base_url=BASE_URL)
 
-def page(title, description, current, hero_html, body_html, extra_head="", include_lightbox=False, include_widget=False, og_image=None, noindex=False):
+def page(title, description, current, hero_html, body_html, extra_head="", include_lightbox=False, include_widget=False, og_image=None, noindex=False, after_widget_html=""):
     lightbox_html = LIGHTBOX if include_lightbox else ""
     widget_html = booking_widget() if include_widget else ""
     canonical_path = "/" if current == "index.html" else "/" + current
@@ -339,6 +339,7 @@ def page(title, description, current, hero_html, body_html, extra_head="", inclu
 <main id="main">
 {hero}
 {widget}
+{after_widget}
 {body}
 </main>
 {footer}
@@ -359,56 +360,40 @@ def page(title, description, current, hero_html, body_html, extra_head="", inclu
         header=header(current),
         hero=hero_html,
         widget=widget_html,
+        after_widget=after_widget_html,
         body=body_html,
         footer=footer(),
         modal=MODAL,
         lightbox=lightbox_html,
     )
 
-def hero(eyebrow, h1, lead, image, small=False, tagline=None, rating=None, has_widget=False):
+def hero(eyebrow, h1, lead, image, small=False):
     cls = "hero hero-small" if small else "hero"
-    if has_widget:
-        cls += " hero-has-widget"
-    # The tagline used to live inside .hero-content, stacked right under the
-    # H1 -- but on a busy photo it kept getting lost against the image, no
-    # matter how big/bold it was made. It now renders as its own solid-color
-    # band directly below the hero photo (still above the booking widget),
-    # so it has guaranteed contrast instead of fighting the background image.
-    # When the widget follows (has_widget=True), the widget's own -46px
-    # negative margin pulls it up into whatever sits directly above it --
-    # which is now this band instead of the hero photo -- so the band needs
-    # extra bottom padding (see .hero-tagline-band-has-widget) to keep its
-    # text clear of that overlap.
-    band_class = "hero-tagline-band hero-tagline-band-has-widget" if has_widget else "hero-tagline-band"
-    tagline_html = """
-  <div class="{1}">
-    <div class="container">
-      <p class="hero-tagline">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M2.5 19h19v2h-19v-2ZM12 2 5 8v4h1v6h3v-5h6v5h3v-6h1V8L12 2Z"/></svg>
-        {0}
-      </p>
-    </div>
-  </div>""".format(tagline, band_class) if tagline else ""
-    rating_badge = ""
-    if rating:
-        score = rating
-        fill_pct = round((score / 5.0) * 100, 1)
-        rating_badge = """<div class="hero-rating-badge">
-      <span class="stars" style="--fill:{fill}%"><span class="stars-fg">&#9733;&#9733;&#9733;&#9733;&#9733;</span></span>
-      <span class="rating-score">{score}<span class="rating-max">/5</span></span>
-      <span class="rating-label">Guest Rating</span>
-    </div>""".format(fill=fill_pct, score=score)
     return """
   <section class="{cls}" style="background-image:url('assets/images/{image}');">
-    {rating_badge}
     <div class="container hero-content">
       <div class="hero-eyebrow">{eyebrow}</div>
       <h1>{h1}</h1>
       <p class="lead">{lead}</p>
     </div>
   </section>
-  {tagline_html}
-""".format(cls=cls, image=image, eyebrow=eyebrow, h1=h1, lead=lead, tagline_html=tagline_html, rating_badge=rating_badge)
+""".format(cls=cls, image=image, eyebrow=eyebrow, h1=h1, lead=lead)
+
+def rating_band(score):
+    """A standalone guest-rating strip, sat between the booking widget and
+    the Overview section -- its own dedicated section rather than crammed
+    onto the hero photo or into the hero text stack, where it kept
+    colliding with the heading/tagline on narrow screens."""
+    fill_pct = round((score / 5.0) * 100, 1)
+    return """
+  <section class="guest-rating-band">
+    <div class="container guest-rating-inner">
+      <span class="stars" style="--fill:{fill}%"><span class="stars-fg">&#9733;&#9733;&#9733;&#9733;&#9733;</span></span>
+      <span class="rating-score">{score}<span class="rating-max">/5</span></span>
+      <span class="rating-label">Guest Rating</span>
+    </div>
+  </section>
+""".format(fill=fill_pct, score=score)
 
 def write(path, content):
     with open(os.path.join(SITE_ROOT, path), "w", encoding="utf-8") as f:
@@ -429,12 +414,10 @@ write("index.html", page(
         "Holiday Inn Kolkata Airport",
         "A business hotel just 4.7 km from CCU Airport, with easy access to New Town and Salt Lake Sector V.",
         "holiday-inn-kolkata-6541707615-2x1.jpg",
-        tagline="Just 10 Minutes from Kolkata Airport",
-        rating=4.3,
-        has_widget=True,
     ),
     home.BODY,
     include_widget=True,
+    after_widget_html=rating_band(4.3),
     extra_head=HOTEL_SCHEMA,
     og_image="holiday-inn-kolkata-6541707615-2x1.jpg",
 ))

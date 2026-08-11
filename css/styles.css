@@ -204,20 +204,6 @@ p { margin: 0 0 1em; overflow-wrap: break-word; }
 .hero p.lead { max-width: 640px; font-size: 1.05rem; color: #f3f3f3; }
 .hero-small { min-height: 260px; }
 
-/* The Home hero is immediately followed by the booking widget, which
-   deliberately overlaps 46px into the bottom of the hero (see
-   .booking-widget-wrap's negative margin). Give that hero extra bottom
-   padding so its own text can never end up sitting underneath that
-   overlap, no matter how many lines the tagline/rating add. */
-.hero-has-widget .hero-content { padding-bottom: 90px; }
-
-/* Guest rating - a standalone badge card floating on the hero photo,
-   completely separate from the heading/tagline/lead text stack below. */
-.hero-rating-badge {
-  position: absolute; top: 24px; right: 24px; z-index: 2;
-  background: rgba(255,255,255,.95); border-radius: var(--radius);
-  box-shadow: var(--shadow-md); padding: 14px 18px; text-align: center;
-}
 .stars {
   position: relative; display: inline-block; font-size: 1.3rem; line-height: 1;
   letter-spacing: 2px; color: var(--hi-grey-light);
@@ -231,24 +217,24 @@ p { margin: 0 0 1em; overflow-wrap: break-word; }
 .rating-max { font-weight: 400; color: var(--hi-grey); font-size: .85rem; }
 .rating-label { display: block; color: var(--hi-grey); font-size: .68rem; text-transform: uppercase; letter-spacing: .05em; margin-top: 2px; }
 
-/* Tagline (e.g. "Just 10 Minutes from Kolkata Airport") - its own solid
-   full-width band directly under the hero photo, above the booking widget.
-   Kept out of the hero-content text stack entirely so it always has
-   guaranteed contrast instead of competing with the background photo. */
-.hero-tagline-band {
-  background: var(--hi-green-darker);
-  padding: 16px 0;
+/* Guest rating band - its own dedicated section between the booking widget
+   and the Overview section (matches the real site's heading-then-rating
+   pairing in spirit, without crowding either the hero photo or the
+   heading text where it kept colliding on narrow screens). */
+.guest-rating-band {
+  background: #fff;
+  border-bottom: 1px solid var(--hi-border);
+  padding: 22px 0;
 }
-/* The booking widget that follows this band overlaps -46px up into
-   whatever sits directly above it. Extra bottom padding keeps that overlap
-   landing on empty band background instead of on top of the tagline text. */
-.hero-tagline-band-has-widget { padding-bottom: 58px; }
-.hero-tagline-band .hero-tagline {
-  display: flex; align-items: center; justify-content: center; gap: 10px;
-  flex-wrap: wrap; text-align: center; margin: 0;
-  color: #fff; font-weight: 700; font-size: clamp(1.05rem, 2.4vw, 1.35rem);
+.guest-rating-inner {
+  display: flex; align-items: center; justify-content: center;
+  flex-wrap: wrap; gap: 10px 14px; text-align: center;
 }
-.hero-tagline-band .hero-tagline svg { flex-shrink: 0; color: var(--hi-gold); }
+.guest-rating-inner .stars { font-size: 1.5rem; }
+.guest-rating-inner .rating-score { display: inline; font-size: 1.3rem; margin-top: 0; }
+.guest-rating-inner .rating-label {
+  display: inline; margin-top: 0; padding-left: 14px; border-left: 1px solid var(--hi-border);
+}
 
 /* ---------- Booking widget ---------- */
 .booking-widget-wrap {
@@ -589,11 +575,9 @@ p { margin: 0 0 1em; overflow-wrap: break-word; }
   .hero-content { padding-top: 30px; padding-bottom: 26px; }
   .hero p.lead { font-size: .95rem; }
   .logo-link img { height: 34px; }
-  .hero-rating-badge { top: 12px; right: 12px; padding: 6px 9px; }
-  .hero-rating-badge .stars { font-size: .85rem; }
-  .hero-rating-badge .rating-score { font-size: .8rem; }
-  .hero-rating-badge .rating-label { display: none; } /* drop the label to keep the badge compact */
-  /* Reserve room on the right of the heading text so it wraps clear of the
-     badge instead of running underneath it. */
-  .hero .hero-eyebrow, .hero h1 { padding-right: 78px; }
+  .guest-rating-band { padding: 16px 0; }
+  .guest-rating-inner { gap: 6px 10px; }
+  .guest-rating-inner .stars { font-size: 1.15rem; }
+  .guest-rating-inner .rating-score { font-size: 1.05rem; }
+  .guest-rating-inner .rating-label { font-size: .62rem; padding-left: 10px; }
 }

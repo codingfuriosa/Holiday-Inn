@@ -115,16 +115,16 @@ open the site live and submit the form yourself once with test details.
 
 ## What I changed in the newest round of feedback
 
-- **Tagline moved off the hero photo entirely.** "Just 10 Minutes from
-  Kolkata Airport" kept getting lost against the busy lobby photo no matter
-  how big/bold it was made, so it now lives in its own solid dark-green band
-  directly under the hero photo (and above the booking widget) — guaranteed
-  white-on-green contrast instead of fighting a background image. This also
-  surfaced and fixed a real overlap bug: the booking widget's own -46px
-  "float up" effect, previously overlapping into the hero photo, was now
-  overlapping into the bottom of this new band and covering the tagline
-  text — fixed by giving the band enough bottom padding to absorb that
-  overlap as blank space instead of covering the words.
+- **Rating moved to its own strip between the booking widget and Overview.**
+  Removed the green tagline band under the hero photo and the floating
+  rating badge that sat on top of the hero image — both are gone now. In
+  their place, guest rating (stars + "4.3/5" + "Guest Rating") is its own
+  plain white section right after the booking widget and before Overview,
+  matching the real site's habit of pairing the heading with the rating,
+  without crowding either the photo or the heading text (which is what
+  caused the mobile collision in an earlier round). The "10 Minutes from
+  Kolkata Airport" tagline has been removed entirely per this request — say
+  the word if you'd like it back somewhere else.
 - **Favicon swapped to the real Holiday Inn "H" mark.** The previous fix
   used the navy IHG corporate square (since the URL lives under
   ihg.com/holidayinn/...) — turns out that was the wrong one. It's now the
