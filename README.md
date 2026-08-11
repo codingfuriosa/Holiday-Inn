@@ -1,0 +1,247 @@
+# Holiday Inn Kolkata Airport — Website (Jain Group build)
+
+A static clone of the Holiday Inn Kolkata Airport hotel microsite
+(https://www.ihg.com/holidayinn/hotels/us/en/kolkata/ccuap/hoteldetail), rebuilt
+from scratch as plain HTML/CSS/JS with all photos and icons downloaded locally
+(no hotlinking to ihg.com).
+
+## How to open it
+
+Double-click `index.html` to preview locally — it's a fully static site, no
+build step needed to browse it. **The booking-enquiry form only works once
+the site is hosted at a real https:// address** (see below) — that's a
+requirement of the email service it uses, not something that can work from a
+local file. Everything else (photos, layout, nav, gallery) works locally too.
+
+## Pages included
+
+- `index.html` — Overview / Home (the only page with the booking widget — see below)
+- `offers.html` — Offers
+- `rooms.html` — Rooms
+- `amenities.html` — Amenities (also includes general hotel policy details:
+  check-in/out, accepted cards, accessibility, etc. — the real site doesn't
+  have a separate "Policies" page, this info lives on the Amenities page there too)
+- `dining.html` — Dining
+- `local-area.html` — Local Area
+- `events.html` — Groups & Events
+- `photos.html` — Photos, organized into the same 5 sections as the real site
+  (Hotel / Rooms / Amenities / Dining / Groups & Meetings), with quick-jump
+  links at the top and a click-to-zoom lightbox
+- `thank-you.html` — Shown after a booking enquiry is submitted
+
+The IHG logo in the header links to `index.html` only, from every page.
+
+## Hosting on GitHub Pages (or any static host)
+
+Yes — email will still work. This is a plain static site (no server, no
+database), and the booking form sends mail via FormSubmit purely from the
+visitor's browser (a background request straight to formsubmit.co), so it
+doesn't matter what's hosting the HTML/CSS/JS files. GitHub Pages serves
+everything over `https://`, which is all FormSubmit needs. The only setup
+step is still the one-time confirmation email described below — that's
+tied to your **ai@thejaingroup.com** inbox, not to where the site lives, so
+it's a one-time thing regardless of which host you pick.
+
+## Google Tag Manager
+
+Your GTM container (`GTM-P3Q3MG9C`) is installed on **every page, including
+the Thank You page** — the loader script is the first thing in `<head>`,
+and the `<noscript>` fallback sits right after the opening `<body>` tag, on
+all 9 pages. Nothing else to configure on the code side; manage tags/
+triggers as usual from the GTM dashboard.
+
+## Booking widget & enquiry form
+
+There is now exactly **one** booking widget on the whole site, on the Home
+page, right under the hero (Arrival / Departure / Rooms & Guests). On every
+other page, the header's "Best Rates Guaranteed" and "Book Now" jump you to
+the Home page and scroll straight to it.
+
+- Clicking **Book Now** inside that widget opens the contact-details popup
+  (Name, Phone, Email + a consent checkbox, checked by default).
+- Clicking **Book Now** on an individual offer/room card, or **Enquire Now**
+  on the Groups & Events page, opens that same popup **directly** — it
+  doesn't send you back to the widget first, since you've already told it
+  what you're interested in.
+- Every field is validated as you'd expect: the name field rejects numbers/
+  symbols, the phone field only accepts exactly 10 digits (no letters,
+  spaces or symbols — anything else is stripped out as you type), and the
+  email field requires a real `name@domain.tld` shape. Nothing gibberish
+  gets through.
+- On submit, the enquiry is sent to **ai@thejaingroup.com** in the
+  background, then you're taken to the Thank You page — same tab
+  throughout, no popup window, and the address bar never leaves your own
+  site. If the background send fails for any reason, a pre-filled email to
+  ai@thejaingroup.com opens instead, again in the same tab.
+
+### Required setup: one email confirmation click (that's it)
+
+The form uses [FormSubmit](https://formsubmit.co) to deliver mail —
+deliberately chosen because it needs **no account, dashboard, or API key**,
+unlike most alternatives. Since you said this site will be hosted on a real
+domain, this is the simplest option: nothing to configure in the code at all.
+
+The only thing that has to happen once the site is live: the very first time
+someone submits the enquiry form, FormSubmit sends an activation email to
+**ai@thejaingroup.com** asking to confirm you own that inbox. Click the
+confirmation link in that one email, and every submission after that
+(including that very first one) delivers automatically, with no further
+setup. I could not click that confirmation link for you, since it has to
+come from your own inbox.
+
+If you'd rather not wait for real traffic to trigger that first email, just
+open the site live and submit the form yourself once with test details.
+
+## What I changed in the newest round of feedback
+
+- **Navbar is now actually sticky.** Root cause: `position: sticky` was set
+  on the inner header row, but its direct parent was exactly the same
+  height as it, leaving it nowhere to "float" — so it just scrolled away
+  like normal content. Moved the sticky positioning to the outer header
+  element instead; verified it stays pinned to the top through a full page
+  scroll, on both desktop and mobile.
+- **Hamburger now turns into an X when opened**, and back into the hamburger
+  when closed. Also fixed a real bug this surfaced: the icon was briefly
+  unclickable while the menu was open (the slide-in panel was stacking on
+  top of it) — fixed the stacking order so the button (and its X) stays on
+  top and clickable at all times.
+- **The "blue highlight on tap" is gone.** That was the browser's default
+  tap-highlight box flashing on every tap on mobile; turned it off site-wide
+  and replaced the default focus outline with a subtler brand-green one
+  (still visible for keyboard users, just not a jarring blue flash on tap).
+- **Found and fixed the real cause of the "no margin" complaint:** the
+  header row and the hero's text block were each accidentally cancelling
+  out their own left/right padding with a shorthand CSS rule meant only to
+  set spacing above/below. Logo, hamburger, hero heading and hero text all
+  now sit with proper breathing room from the screen edges at every width —
+  confirmed by measuring their exact position in pixels, not just eyeballing it.
+- **Home page booking widget on mobile, no longer stretched out:** the
+  Arrival / Departure / Rooms & Guests fields were each rendering ~200px
+  tall on phones (a CSS rule meant to size their *width* in the desktop
+  layout was accidentally sizing their *height* once they stacked into a
+  column) — each field is back to its natural ~75px height with a normal
+  gap between them.
+- **Long, unbreakable text (emails, an oddly-formatted phone number) no
+  longer forces any card to overflow** — added a site-wide safety net so
+  this class of bug can't resurface in a card I haven't specifically tested.
+- **Hero sections trimmed down** to shorter, punchier copy on Home, Rooms,
+  Dining and Groups & Events, so there's less text competing with the photo
+  behind it — especially on phones, where the hero is already shorter.
+- **Google Tag Manager installed** (`GTM-P3Q3MG9C`) on all 9 pages, head
+  script and body `<noscript>` fallback both in place — see the section
+  above.
+
+## What I changed in the round before that
+
+- **Header strip removed:** the phone number / "My stays" / "Join for free" /
+  "Sign in" line above the main nav is gone completely — nothing replaces it.
+- **Booking email fixed for real this time:** the form no longer does a
+  native browser submit to FormSubmit (that's what showed the raw
+  `https://formsubmit.co/ai@thejaingroup.com` address when you tested it).
+  It now sends the enquiry in the background and only ever navigates you to
+  `thank-you.html`, so the address bar always stays on your own site. If
+  that background send ever fails, it opens a same-tab pre-filled email to
+  **ai@thejaingroup.com** as a fallback — no popup window.
+- **"Reservations" reverted:** removed "Front Desk Reservations" everywhere
+  (footer, Home, Amenities, Local Area) and put back the original plain
+  "Reservations" label, per your note that the merge wasn't wanted after all.
+- **Phone field:** now hard-limited to exactly 10 digits — letters and
+  symbols can't even be typed in, and anything pasted in gets stripped down
+  to digits automatically.
+- **Hamburger menu / header responsiveness, actually fixed:** the previous
+  breakpoint (860px) was too narrow for how much the header holds (logo + 7
+  links + two buttons), so the nav would wrap onto a messy second line
+  before the hamburger ever kicked in. The switch to the hamburger menu now
+  happens earlier, at 1180px, so that wrap never happens — verified with
+  screenshots at every width from 320px to 2560px, no wrapping at any point.
+- **Mobile header redesign, as requested:** below 1180px width, the top bar
+  shows only the logo and the hamburger icon — nothing else. "Best Rates
+  Guaranteed" and "Book Now" now live in a new bar fixed to the bottom of
+  the screen instead, always visible without scrolling back up.
+- **Amenities-card "cropping", root cause found and fixed:** the General
+  Hotel Details table had a genuine bug — the email address
+  (reservations@holidayinnkolairport.com) was long enough to get clipped
+  instead of wrapping inside its cell on narrower screens. Fixed by letting
+  table cells wrap long text instead of forcing it into a fixed-width
+  column.
+- **Local Area map/details and Groups & Events, unresponsive layout fixed:**
+  same underlying issue as above — the address-card grid could be forced
+  wider than its column by long, unbreakable text (the events-page email
+  address in particular). Grid columns and card text now always shrink to
+  fit and wrap instead of overflowing.
+- **Hero section responsiveness:** reduced the hero's minimum height and
+  padding on small phone screens so the heading and intro text don't feel
+  oversized or cramped edge-to-edge.
+
+## What I changed in the round before this
+
+- **Email:** switched from EmailJS (needed an account + API keys) to
+  FormSubmit (needs nothing but the one-time confirmation click above), and
+  fixed the Thank You redirect to stay in the same browser tab throughout.
+- **Header:** removed the dark "utility bar" band entirely. The phone number
+  and My stays / Join for free / Sign in links now sit in a slim plain line
+  above the main white nav bar instead of their own dark strip.
+- **Footer:** removed the "Best Price Guarantee" wordmark block; fixed the
+  Facebook/X/Instagram icons so they're precisely centered in their circles
+  (they're inline icons now, not slightly-off-center downloaded images);
+  merged the separate "Reservations" (toll-free) and "Front Desk" lines into
+  a single **"Front Desk Reservations"** line everywhere that pairing
+  appeared (footer, Home, Local Area, Amenities).
+- **Booking flow:** the widget now lives only on the Home page; every other
+  page's "Book Now" takes you there first, exactly as you described. Offer/
+  room "Book Now" and the Events page's "Enquire Now" still skip straight to
+  the contact form.
+- **Form:** shrank the oversized agreement checkbox, added real per-field
+  validation (see above) with inline error messages instead of one generic
+  error.
+- **Fonts:** added Playfair Display (headings) and Poppins (body text) from
+  Google Fonts, replacing the plain system-font look.
+- **Amenities page:** the 9 feature icons now sit in a 5-then-4 "brick"
+  layout instead of an uneven wrap; the plain-text amenity sections below
+  (Fitness Center, Pool, Parking, etc.) are now individual white cards with
+  borders/shadow instead of bare floating text.
+- **Photos page:** rebuilt as distinct sections per category (Hotel, Rooms,
+  Amenities, Dining, Groups & Meetings) with a heading over each and
+  quick-jump pills at the top — matching how the real IHG gallery is
+  actually laid out, rather than one flat grid with a JS filter.
+- **Responsiveness:** re-verified with no horizontal overflow at any width
+  from 320px to 2560px. One clarification on the "zoomed out and it broke"
+  note — browser zoom (Ctrl +/-) just magnifies everything uniformly by
+  design and isn't what responsive breakpoints react to; resizing the
+  browser window (or viewing on an actual phone) is the real test, and
+  that's what I verified against.
+
+## What I removed or changed from the real IHG site (from the previous round, still true)
+
+- **Removed:** the "Chat with us" live-chat widget/link.
+- **Removed:** the cookie-consent banner (you said cookies aren't required).
+- **Removed:** the "Feedback" link that opened IHG's third-party feedback
+  tool. In its place, the footer has a **"Send Feedback"** link that opens a
+  pre-addressed email to **ai@thejaingroup.com**.
+- **Removed:** AdChoices / "Do Not Sell My Info" links (these only make sense
+  alongside a cookie/ad-tracking setup, which isn't present here).
+- **Kept as external links (open ihg.com in a new tab):** "My stays", "Join
+  for free", "Sign in", and the Company/Legal footer links (About IHG,
+  Careers, Terms of Use, Privacy Policy, Site Map, App Store/Play Store
+  badges) — you confirmed the full IHG-account system is out of scope.
+- **Note on the phone number on the Dining page** for Urban Kitchen and Bar:
+  the source data I extracted for that one number was inconsistently
+  formatted, so I left it exactly as scraped ("91-033-907396354") rather than
+  guess at the correct grouping — worth double-checking against the hotel's
+  real records before publishing.
+- No separate "Guest Reviews" page — the live site's main navigation doesn't
+  have one either.
+
+## Folder structure
+
+```
+index.html, offers.html, rooms.html, ...   the pages
+css/styles.css                              all styling (responsive)
+js/main.js                                  nav, booking widget, modal, validation, gallery, lightbox
+js/config.js                                the one place to change the destination email address
+assets/images/                              all hotel photos (downloaded, not hotlinked)
+assets/icons/                               logo, amenity icons, app badges
+_dev/                                       the Python scripts used to generate the HTML
+                                             pages (not needed to run the site — keep only
+                                             if you want to regenerate pages later)
+```
