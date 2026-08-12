@@ -115,6 +115,18 @@ open the site live and submit the form yourself once with test details.
 
 ## What I changed in the newest round of feedback
 
+- **Enquiry emails now also CC a second inbox** — `pritesh.zavery@ihg.com`,
+  alongside the primary `ai@thejaingroup.com` — configurable in
+  `js/config.js` (`CC_EMAIL`). We looked at moving off FormSubmit entirely
+  onto Gmail so the email would visibly show as sent "from Holiday Inn,"
+  but that needs a real mailbox the hotel controls (Gmail/Workspace
+  account or similar) plus a small backend to hold its credentials, which
+  isn't in place yet — happy to revisit later if you set one up. FormSubmit
+  itself has no way to change the visible sender name (a deliberate
+  anti-spoofing restriction on every free form-to-email relay, not
+  something fixable via configuration) — the subject line and email body
+  already say "Holiday Inn Kolkata Airport" clearly, which is the most it
+  can offer.
 - **Tagline + rating now share one centered section with a divider,**
   between the booking widget and Overview. The tagline briefly lived inside
   the Overview container itself, left-aligned to match that section's text

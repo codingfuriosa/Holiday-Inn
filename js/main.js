@@ -219,6 +219,19 @@
       }
     }
 
+    // Every enquiry also CCs a second inbox (e.g. an IHG-side contact),
+    // configured in js/config.js. Left blank/disabled entirely if not set,
+    // rather than sending an empty _cc field.
+    var ccEmail = window.SITE_CONFIG && window.SITE_CONFIG.CC_EMAIL;
+    var ccField = formEl.querySelector('[data-field="_cc"]');
+    if (ccField) {
+      if (ccEmail) {
+        ccField.value = ccEmail;
+      } else {
+        ccField.disabled = true;
+      }
+    }
+
     // Digits-only, max-10 phone field - strip anything else as the user types.
     var phoneField = formEl.querySelector('[data-field="phone"]');
     if (phoneField) {

@@ -146,6 +146,7 @@ MODAL = """
         <input type="hidden" name="_captcha" value="false">
         <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
         <input type="hidden" name="_next" value="">
+        <input type="hidden" name="_cc" value="" data-field="_cc">
         <input type="hidden" name="Enquiry Type" data-field="enquiry_type">
         <input type="hidden" name="Arrival Date" data-field="arrival">
         <input type="hidden" name="Departure Date" data-field="departure">
