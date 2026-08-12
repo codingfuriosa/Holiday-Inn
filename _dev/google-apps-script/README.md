@@ -110,9 +110,20 @@ You can also open the `/exec` URL directly in a browser — it should answer
 | Email | guest | |
 | **Location** | **you, by hand** | Tinted cream — the website doesn't collect this |
 
-Arrival, Departure, Rooms and Guests are blank for enquiries that never went
-through the booking widget (Groups & Events, and the offer cards) — those
-never ask for dates.
+Arrival, Departure, Rooms and Guests read **`NA`** for enquiries that never
+went through the booking widget (Groups & Events, and the offer cards) — those
+go straight to contact details and never ask for dates. `NA` is shown in grey
+italics so it recedes against rows carrying real values, and it's there rather
+than a blank so "not applicable" can't be mistaken for "failed to record".
+
+> **Trade-off:** this makes Arrival and Departure mixed text/date columns, so a
+> date sort or date filter groups the `NA` rows separately instead of ordering
+> them. To go back to genuinely empty cells and fully typed date columns, set
+> `NOT_APPLICABLE = ''` at the top of `Code.gs` and re-run `setupSheet`.
+
+`Timestamp` is the one field left genuinely blank where unknown — on the four
+seeded rows only. That's a different thing from `NA`: not "doesn't apply", but
+"we don't have it".
 
 ### Enquiry Type values
 

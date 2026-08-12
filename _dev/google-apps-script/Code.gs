@@ -144,20 +144,39 @@ function json(obj) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
+/**
+ * Text written into the four stay-detail columns when an enquiry never asked
+ * for them — Groups & Events and the offer cards go straight to contact
+ * details, so they have no dates, rooms or guests to record.
+ *
+ * A blank cell can't be told apart from "something failed to record", which is
+ * why these read NA instead. Trade-off worth knowing: it makes Arrival and
+ * Departure mixed text/date columns, so date sorting and date filters put the
+ * NA rows on their own rather than ordering them. Set this to '' to go back to
+ * genuinely empty cells and fully typed date columns.
+ */
+var NOT_APPLICABLE = 'NA';
+
 function buildRow(d) {
   return [
-    new Date(),                 // Timestamp — server-side, not client clock
-    asDate(d.arrival),          // Arrival
-    asDate(d.departure),        // Departure
-    d.enquiryType || '',        // Enquiry Type
-    d.rooms || '',              // Rooms
-    d.guests || '',             // Guests
-    d.page || '',               // Form Page
-    d.name || '',               // Full Name
-    asPhoneText(d.phone),       // Number
-    d.email || '',              // Email
-    ''                          // Location — filled in manually by the team
+    new Date(),                       // Timestamp — server-side, not client clock
+    orNA(asDate(d.arrival)),          // Arrival
+    orNA(asDate(d.departure)),        // Departure
+    d.enquiryType || '',              // Enquiry Type
+    orNA(d.rooms),                    // Rooms
+    orNA(d.guests),                   // Guests
+    d.page || '',                     // Form Page
+    d.name || '',                     // Full Name
+    asPhoneText(d.phone),             // Number
+    d.email || '',                    // Email
+    ''                                // Location — filled in manually by the team
   ];
+}
+
+/** A real value, or the NA marker when there's nothing to record. */
+function orNA(value) {
+  if (value instanceof Date) return value;
+  return (value === '' || value === null || value === undefined) ? NOT_APPLICABLE : value;
 }
 
 /** "2026-08-14" -> a real Date cell, so the column sorts and filters properly. */
@@ -198,12 +217,12 @@ function seedSampleRows(sheet) {
 
   var rows = SEED_ROWS.map(function (s) {
     return [
-      parseTimestamp(s.timestamp),
-      asDate(s.arrival),
-      asDate(s.departure),
+      parseTimestamp(s.timestamp),      // left blank where unknown, not NA
+      orNA(asDate(s.arrival)),
+      orNA(asDate(s.departure)),
       s.enquiryType || '',
-      s.rooms || '',
-      s.guests || '',
+      orNA(s.rooms),
+      orNA(s.guests),
       s.page || '',
       s.name || '',
       s.phone ? "'" + s.phone : '',
@@ -314,6 +333,21 @@ function formatSheet(sheet) {
     typeRule(typeCol, 'Groups & Events', '#fbeee0'),
     typeRule(typeCol, 'General Enquiry', '#f2f2f2')
   ];
+
+  // Grey out the NA markers so they recede instead of competing visually with
+  // the rows that do carry real dates and room counts.
+  if (NOT_APPLICABLE) {
+    rules.push(SpreadsheetApp.newConditionalFormatRule()
+      .whenTextEqualTo(NOT_APPLICABLE)
+      .setFontColor('#9e9e9e')
+      .setItalic(true)
+      .setRanges([
+        col(sheet, 'Arrival'), col(sheet, 'Departure'),
+        col(sheet, 'Rooms'), col(sheet, 'Guests')
+      ])
+      .build());
+  }
+
   sheet.setConditionalFormatRules(rules);
 
   // --- Location is the one column filled in by hand -----------------------

@@ -175,9 +175,12 @@ it lost your place. That intent is cleared the moment it's used, and also
 cleared if you then click the general header "Book Now" instead — so a room
 enquiry can never leak into an unrelated later submission.
 
-Arrival, Departure, Rooms and Guests are blank in the sheet for the two
-flows that never go through the widget (Groups & Events, offer cards), rather
-than being filled with "Not specified" padding.
+Arrival, Departure, Rooms and Guests read **`NA`** in the sheet for the two
+flows that never go through the widget (Groups & Events, offer cards) — shown
+in grey italics, so "not applicable" reads differently from a value that
+failed to record. In the *email* those rows are dropped entirely rather than
+shown as padding. Switch it back to blank cells by setting
+`NOT_APPLICABLE = ''` at the top of `Code.gs`.
 
 ## The Arrival / Departure calendar is now our own
 

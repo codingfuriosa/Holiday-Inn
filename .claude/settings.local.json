@@ -14,7 +14,9 @@
       "Bash(cd \"C:/Users/Gigabyte/Documents/Holiday Inn\" && rm -f .claude/_tmp_gs.json && echo removed)",
       "mcp__41402f79-7174-4ac8-9da9-cd3e1704afef__search_threads",
       "Bash(cd \"C:/Users/Gigabyte/Documents/Holiday Inn\" && rm -f .claude/_tmp_gs.json && echo cleaned)",
-      "Bash(python build.py)"
+      "Bash(python build.py)",
+      "Bash(sed -n '/Kept for the Sheet row/,/};/p' js/main.js)",
+      "Bash(sed -n '/^function buildRow/,/^}/p' _dev/google-apps-script/Code.gs)"
     ]
   }
 }
