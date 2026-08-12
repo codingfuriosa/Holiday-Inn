@@ -592,7 +592,8 @@ p { margin: 0 0 1em; overflow-wrap: break-word; }
   .rating-row .rating-label { font-size: .62rem; padding-left: 10px; }
   /* The Overview paragraphs use the browser's plain 16px default with a
      1.6 line-height - fine on desktop, but on a narrow phone that renders
-     as a wall of text several screens tall. Match the smaller size already
-     used for card body copy elsewhere on the site. */
-  .overview-split p { font-size: .92rem; line-height: 1.55; }
+     as a wall of text several screens tall. Sized noticeably smaller and
+     tighter than the rest of the site's mobile body copy on purpose, since
+     this is two full paragraphs back to back, not a short card blurb. */
+  .overview-split p { font-size: .85rem; line-height: 1.45; }
 }
