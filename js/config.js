@@ -52,5 +52,5 @@
 window.SITE_CONFIG = {
   TO_EMAIL: "ai@thejaingroup.com",
   CC_EMAIL: "pritesh.zavery@ihg.com",
-  SHEET_ENDPOINT: ""
+  SHEET_ENDPOINT: "https://script.google.com/macros/s/AKfycbxQSHxgQ1D2ZD8WFGdNOTpIOJUynkjWEtMmTtdvQJXCjdHt-2bYTL9wHs0JnWbMGFc/exec"
 };

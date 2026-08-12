@@ -10,7 +10,6 @@
     initMobileNav();
     initRoomsGuests();
     initBookingWidget();
-    initDateFields();
     initBestRateScroll();
     initBookingModal();
     initLightbox();
@@ -199,22 +198,7 @@
         intentEl.hidden = false;
       }
 
-      if (arrival && departure) {
-        var today = new Date();
-        var tomorrow = new Date(today.getTime() + 86400000);
-        var dayAfter = new Date(today.getTime() + 2 * 86400000);
-        arrival.min = fmtDate(today);
-        arrival.value = arrival.value || fmtDate(tomorrow);
-        departure.min = fmtDate(tomorrow);
-        departure.value = departure.value || fmtDate(dayAfter);
-
-        arrival.addEventListener("change", function () {
-          var a = new Date(arrival.value);
-          var minDep = new Date(a.getTime() + 86400000);
-          departure.min = fmtDate(minDep);
-          if (new Date(departure.value) <= a) departure.value = fmtDate(minDep);
-        });
-      }
+      if (arrival && departure) initDatePicker(widget, arrival, departure);
 
       var cta = widget.querySelector(".bw-cta button, .bw-cta .btn");
       if (cta) {
@@ -613,21 +597,291 @@
     return names[file] || file;
   }
 
-  /* ---------------- Date fields ----------------------------------------
-     On phones a bare <input type="date"> is fiddly: only the narrow text run
-     is reliably tappable, so taps on the rest of the field appear to do
-     nothing. Open the native picker from a tap anywhere on the field. */
-  function initDateFields() {
-    document.querySelectorAll('.bw-date input[type="date"]').forEach(function (input) {
-      var wrap = input.closest(".bw-date");
-      if (!wrap) return;
-      wrap.addEventListener("click", function () {
-        if (typeof input.showPicker === "function") {
-          try { input.showPicker(); return; } catch (e) { /* fall through */ }
+  /* ---------------- Date picker ----------------------------------------
+     A calendar drawn by us, replacing <input type="date">.
+
+     The native control's popup is rendered by the browser/OS outside the page
+     entirely, so no amount of CSS can restyle it -- it simply looks like
+     whatever the visitor's device looks like, which sat badly against the rest
+     of the widget. This draws the calendar in the page instead.
+
+     It's a RANGE picker rather than two independent single-date pickers,
+     because that's how a stay actually works: pick arrival, and it moves you
+     straight to picking departure, highlighting the nights in between and
+     showing the count. Departure can never land on or before arrival, so the
+     invalid combination the old two-field version had to correct after the
+     fact simply can't be expressed here.
+
+     The visible fields are buttons; the real values live in hidden inputs in
+     plain YYYY-MM-DD, so everything downstream (the modal, the email, the
+     Sheet row) is unchanged. */
+  var MONTHS = ["January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December"];
+  var DAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+
+  function initDatePicker(widget, arrivalInput, departureInput) {
+    var dp = widget.querySelector(".dp");
+    if (!dp) return;
+
+    var titlesEl = dp.querySelector(".dp-titles");
+    var monthsEl = dp.querySelector(".dp-months");
+    var summaryEl = dp.querySelector(".dp-summary");
+    var prevBtn = dp.querySelector(".dp-prev");
+    var nextBtn = dp.querySelector(".dp-next");
+    var doneBtn = dp.querySelector(".dp-done");
+    var clearBtn = dp.querySelector(".dp-clear");
+    var openers = widget.querySelectorAll("[data-date-open]");
+
+    var today = startOfDay(new Date());
+    var arrival = addDays(today, 1);
+    var departure = addDays(today, 2);
+    var picking = "arrival";
+    var hovered = null;
+    var view = new Date(arrival.getFullYear(), arrival.getMonth(), 1);
+    var open = false;
+
+    /* One month on narrow screens, two side by side once there's room -- the
+       two-month view is what makes a multi-night stay across a month boundary
+       selectable without paging back and forth. */
+    function monthCount() { return window.innerWidth >= 700 ? 2 : 1; }
+
+    function render() {
+      var count = monthCount();
+      titlesEl.innerHTML = "";
+      monthsEl.innerHTML = "";
+
+      for (var m = 0; m < count; m++) {
+        var month = new Date(view.getFullYear(), view.getMonth() + m, 1);
+        var title = document.createElement("div");
+        title.className = "dp-title";
+        title.textContent = MONTHS[month.getMonth()] + " " + month.getFullYear();
+        titlesEl.appendChild(title);
+        monthsEl.appendChild(buildMonth(month));
+      }
+
+      // Never let the visitor page back into months that are entirely past.
+      prevBtn.disabled = view.getFullYear() === today.getFullYear() && view.getMonth() === today.getMonth();
+      renderSummary();
+    }
+
+    function buildMonth(month) {
+      var wrap = document.createElement("div");
+      wrap.className = "dp-month";
+
+      var head = document.createElement("div");
+      head.className = "dp-dow";
+      DAYS.forEach(function (d) {
+        var cell = document.createElement("span");
+        cell.textContent = d;
+        head.appendChild(cell);
+      });
+      wrap.appendChild(head);
+
+      var grid = document.createElement("div");
+      grid.className = "dp-grid";
+
+      var first = new Date(month.getFullYear(), month.getMonth(), 1);
+      var daysInMonth = new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate();
+
+      for (var blank = 0; blank < first.getDay(); blank++) {
+        var filler = document.createElement("span");
+        filler.className = "dp-cell";
+        grid.appendChild(filler);
+      }
+
+      for (var d = 1; d <= daysInMonth; d++) {
+        grid.appendChild(buildDay(new Date(month.getFullYear(), month.getMonth(), d)));
+      }
+
+      wrap.appendChild(grid);
+      return wrap;
+    }
+
+    /* Each day is a button inside a cell. The cell carries the range shading
+       (square-edged, so consecutive days form one continuous band) and the
+       button carries the round selected pill on top of it -- which is what
+       makes the two meet cleanly instead of leaving a notch at each end. */
+    function buildDay(date) {
+      var cell = document.createElement("span");
+      cell.className = "dp-cell";
+
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "dp-day";
+      btn.textContent = date.getDate();
+      btn.setAttribute("aria-label", longDate(date));
+      cell.appendChild(btn);
+
+      // What's selectable depends on which end we're picking: arrival can be
+      // today onwards; while picking a departure, everything before the chosen
+      // arrival is out.
+      //
+      // The floor is the arrival day itself, NOT the day after it. Using
+      // arrival+1 disabled the arrival cell, which then took the early return
+      // below and never got its selected styling - so the date you had just
+      // picked rendered as unavailable. Clicking the arrival day is meaningful
+      // anyway: choose() reads it as "actually, start here instead".
+      var min = picking === "departure" && arrival ? arrival : today;
+      if (date < min) {
+        btn.disabled = true;
+        btn.classList.add("dp-disabled");
+        return cell;
+      }
+
+      if (same(date, today)) btn.classList.add("dp-today");
+
+      var isStart = arrival && same(date, arrival);
+      var isEnd = departure && same(date, departure);
+      if (isStart) btn.classList.add("dp-selected");
+      if (isEnd) btn.classList.add("dp-selected");
+
+      // Shade the nights between the two ends -- including a live preview of
+      // the range while the visitor is still hovering a departure date.
+      var rangeEnd = departure || (picking === "departure" ? hovered : null);
+      var hasRange = arrival && rangeEnd && rangeEnd > arrival;
+      if (hasRange && date > arrival && date < rangeEnd) cell.classList.add("dp-in-range");
+      if (hasRange && isStart) cell.classList.add("dp-range-start");
+      if (hasRange && rangeEnd && same(date, rangeEnd)) cell.classList.add("dp-range-end");
+
+      btn.addEventListener("click", function () { choose(date); });
+      btn.addEventListener("mouseenter", function () {
+        if (picking === "departure" && !departure) { hovered = date; render(); }
+      });
+      return cell;
+    }
+
+    function choose(date) {
+      if (picking === "arrival") {
+        arrival = date;
+        // A stay is at least one night, so an arrival on/after the current
+        // departure invalidates it -- drop it and let them pick again.
+        if (!departure || departure <= date) departure = null;
+        picking = "departure";
+        hovered = null;
+      } else {
+        // Clicking on or before arrival reads as "actually, start here".
+        if (date <= arrival) {
+          arrival = date;
+          departure = null;
+        } else {
+          departure = date;
         }
-        input.focus();
+      }
+      commit();
+      render();
+      updateOpenState();
+      if (arrival && departure) setTimeout(close, 180); // let the fill-in be seen
+    }
+
+    function renderSummary() {
+      if (arrival && departure) {
+        var nights = Math.round((departure - arrival) / 86400000);
+        summaryEl.textContent = shortDate(arrival) + " → " + shortDate(departure) +
+          "  ·  " + nights + (nights === 1 ? " night" : " nights");
+      } else if (arrival) {
+        summaryEl.textContent = shortDate(arrival) + " → select your departure date";
+      } else {
+        summaryEl.textContent = "Select your arrival date";
+      }
+    }
+
+    /* Push the chosen dates into the hidden inputs and the field labels. */
+    function commit() {
+      arrivalInput.value = arrival ? fmtDate(arrival) : "";
+      departureInput.value = departure ? fmtDate(departure) : "";
+      setFieldText("arrival", arrival);
+      setFieldText("departure", departure);
+    }
+
+    function setFieldText(which, date) {
+      var btn = widget.querySelector('[data-date-open="' + which + '"]');
+      if (!btn) return;
+      var textEl = btn.querySelector(".bw-date-text");
+      if (date) {
+        textEl.textContent = shortDate(date);
+        textEl.classList.remove("dp-placeholder");
+      } else {
+        textEl.textContent = which === "arrival" ? "Add date" : "Add date";
+        textEl.classList.add("dp-placeholder");
+      }
+    }
+
+    function updateOpenState() {
+      openers.forEach(function (btn) {
+        var which = btn.getAttribute("data-date-open");
+        btn.classList.toggle("active", open && picking === which);
+        btn.setAttribute("aria-expanded", open ? "true" : "false");
+      });
+    }
+
+    function openPicker(which) {
+      picking = which;
+      // Departure can't be picked before an arrival exists.
+      if (which === "departure" && !arrival) picking = "arrival";
+      hovered = null;
+      var anchor = picking === "departure" && departure ? departure : (arrival || today);
+      view = new Date(anchor.getFullYear(), anchor.getMonth(), 1);
+      open = true;
+      dp.hidden = false;
+      render();
+      updateOpenState();
+    }
+
+    function close() {
+      open = false;
+      dp.hidden = true;
+      hovered = null;
+      updateOpenState();
+    }
+
+    openers.forEach(function (btn) {
+      btn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        var which = btn.getAttribute("data-date-open");
+        if (open && picking === which) close();
+        else openPicker(which);
       });
     });
+
+    prevBtn.addEventListener("click", function () {
+      view = new Date(view.getFullYear(), view.getMonth() - 1, 1);
+      render();
+    });
+    nextBtn.addEventListener("click", function () {
+      view = new Date(view.getFullYear(), view.getMonth() + 1, 1);
+      render();
+    });
+    doneBtn.addEventListener("click", close);
+    clearBtn.addEventListener("click", function () {
+      arrival = null;
+      departure = null;
+      picking = "arrival";
+      hovered = null;
+      commit();
+      render();
+      updateOpenState();
+    });
+
+    dp.addEventListener("click", function (e) { e.stopPropagation(); });
+    document.addEventListener("click", function () { if (open) close(); });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && open) close();
+    });
+    // Crossing the one/two-month breakpoint has to redraw the grid.
+    window.addEventListener("resize", function () { if (open) render(); });
+
+    commit();
+    render();
+  }
+
+  function startOfDay(d) { return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
+  function addDays(d, n) { return new Date(d.getFullYear(), d.getMonth(), d.getDate() + n); }
+  function same(a, b) { return a && b && a.getTime() === b.getTime(); }
+  function shortDate(d) {
+    return d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
+  }
+  function longDate(d) {
+    return d.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
   }
 
   /* ---------------- Lightbox (works across every photo on the page) ---------------- */

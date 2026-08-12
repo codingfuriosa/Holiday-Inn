@@ -179,6 +179,34 @@ Arrival, Departure, Rooms and Guests are blank in the sheet for the two
 flows that never go through the widget (Groups & Events, offer cards), rather
 than being filled with "Not specified" padding.
 
+## The Arrival / Departure calendar is now our own
+
+The native `<input type="date">` picker couldn't be made to look right, and
+that isn't a CSS problem to solve — the browser draws that popup outside the
+page entirely, as operating-system chrome. It looks like whatever the
+visitor's device looks like, and no stylesheet can reach it. So the fields no
+longer use `type="date"` at all: the calendar is drawn in the page.
+
+It's a **range** picker rather than two separate date boxes, which is how a
+stay actually works:
+
+- Pick your arrival and it moves straight on to departure, no second click on
+  another field.
+- The nights in between fill in as a green band, with both ends as pills, and
+  the range previews live as you hover a possible departure.
+- The footer reads back `Thu 20 Aug → Tue 25 Aug · 5 nights`.
+- Past dates are greyed out, and while you're choosing a departure, anything
+  before your arrival is unselectable — so "departure before arrival" simply
+  can't be expressed any more, rather than being corrected after the fact.
+- **Two months side by side** on desktop so a stay crossing a month boundary
+  doesn't need paging back and forth; **one month** on phones, sized to the
+  card, with the footer stacked.
+- `Reset` clears both ends; `Done`, `Esc` or a click outside closes it.
+
+The visible fields are buttons showing a formatted date (`Thu 20 Aug`), backed
+by hidden inputs still carrying plain `YYYY-MM-DD` — so the email, the Sheet
+row and everything else downstream are completely unchanged.
+
 ## Booking widget date fields — mobile fix and restyle
 
 The Arrival and Departure fields were pushing out through the side of the
