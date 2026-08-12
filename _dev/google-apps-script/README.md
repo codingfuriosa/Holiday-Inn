@@ -21,16 +21,13 @@ I can't do for you.
 1. In that Sheet: **Extensions → Apps Script**.
 2. Delete whatever is in `Code.gs`, and paste in the full contents of
    [`Code.gs`](Code.gs) from this folder.
-3. Near the top, fill in `TEAM_EMAILS` with the four addresses:
+3. Find `SEED_ROWS` near the top. It holds the four entries that should
+   already be in the sheet — Jayanta Sarkar, Rabi Kumar Darji, Nitin Jain and
+   Ayantika Bhatacharjee.
 
-   ```js
-   var TEAM_EMAILS = [
-     'jayanta.sarkar@example.com',
-     'rabi.darji@example.com',
-     'nitin.jain@example.com',
-     'ayantika.bhatacharjee@example.com'
-   ];
-   ```
+   **The phone numbers and email addresses in there are placeholders** — only
+   the four names came from you. Replace them with the real details, either
+   here before running the setup, or directly in the sheet afterwards.
 
 4. Save (the floppy icon).
 
@@ -44,7 +41,12 @@ I can't do for you.
    here.)
 3. Switch back to the Sheet. There's now a formatted **Enquiries** tab with the
    header row, column widths, date formats and colour coding in place, and the
-   four teammates have edit access.
+   four starting entries already filled in — one per enquiry type, so you can
+   see what each flow looks like before any real traffic arrives.
+
+Seeding only happens into an empty sheet, so it's safe to re-run `setupSheet`
+later to re-apply formatting: it won't duplicate those four or touch real
+enquiries that have come in since.
 
 ## 4. Deploy it as a Web App
 

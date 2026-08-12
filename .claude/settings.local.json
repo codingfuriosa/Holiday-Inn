@@ -6,7 +6,12 @@
       "PowerShell(gh --version)",
       "PowerShell(git ls-remote https://github.com/codingfuriosa/Holiday-Inn.git 2>&1)",
       "Bash(git add *)",
-      "Bash(git commit -q -m ' *)"
+      "Bash(git commit -q -m ' *)",
+      "Bash(git config *)",
+      "Bash(echo \"exit=$?\")",
+      "Bash(node --check _dev/google-apps-script/Code.gs)",
+      "Bash(python -c ' *)",
+      "Bash(cd \"C:/Users/Gigabyte/Documents/Holiday Inn\" && rm -f .claude/_tmp_gs.json && echo removed)"
     ]
   }
 }

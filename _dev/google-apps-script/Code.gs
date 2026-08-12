@@ -29,10 +29,68 @@ var HEADERS = [
   'Location'
 ];
 
-/** People who get edit access to the sheet when setupSheet() runs. */
-var TEAM_EMAILS = [
-  // TODO: real addresses for Jayanta Sarkar, Rabi Kumar Darji, Nitin Jain,
-  // Ayantika Bhatacharjee — fill these in before running setupSheet().
+/**
+ * Four enquiries that should already be sitting in the sheet before the
+ * website sends its first real one. Written by setupSheet(), and only ever
+ * when the sheet is otherwise empty, so re-running setup can't duplicate them.
+ *
+ * >>> The phone numbers and email addresses below are PLACEHOLDERS. <<<
+ * Only the four names came from you — replace the contact details with the
+ * real ones (either here before running setupSheet, or straight in the sheet
+ * afterwards, whichever is easier).
+ *
+ * One row per enquiry type on purpose, so the sheet shows what each flow
+ * actually looks like once it's live.
+ */
+var SEED_ROWS = [
+  {
+    daysAgo: 6,
+    name: 'Jayanta Sarkar',
+    phone: '9800000001',
+    email: 'jayanta.sarkar@example.com',
+    enquiryType: 'Enquiry for Standard Room',
+    arrivalInDays: 8,
+    nights: 2,
+    rooms: '1',
+    guests: '2 Adults',
+    page: 'Rooms',
+    location: ''
+  },
+  {
+    daysAgo: 4,
+    name: 'Rabi Kumar Darji',
+    phone: '9800000002',
+    email: 'rabi.darji@example.com',
+    enquiryType: 'Enquiry for Suite',
+    arrivalInDays: 14,
+    nights: 3,
+    rooms: '1',
+    guests: '2 Adults, 1 Child',
+    page: 'Rooms',
+    location: ''
+  },
+  {
+    daysAgo: 2,
+    name: 'Nitin Jain',
+    phone: '9800000003',
+    email: 'nitin.jain@example.com',
+    enquiryType: 'Groups & Events',
+    page: 'Groups & Events',   // no dates - this flow never asks for them
+    location: ''
+  },
+  {
+    daysAgo: 1,
+    name: 'Ayantika Bhatacharjee',
+    phone: '9800000004',
+    email: 'ayantika.bhatacharjee@example.com',
+    enquiryType: 'General Enquiry',
+    arrivalInDays: 5,
+    nights: 1,
+    rooms: '2',
+    guests: '4 Adults',
+    page: 'Home',
+    location: ''
+  }
 ];
 
 /* ==========================================================================
@@ -112,8 +170,48 @@ function asPhoneText(value) {
 function setupSheet() {
   var sheet = getSheet();
   formatSheet(sheet);
-  shareWithTeam();
-  SpreadsheetApp.getActiveSpreadsheet().toast('Sheet ready.', 'Holiday Inn', 5);
+  var seeded = seedSampleRows(sheet);
+  SpreadsheetApp.getActiveSpreadsheet().toast(
+    seeded ? 'Sheet ready, with the 4 starting entries.' : 'Sheet ready (rows already present, nothing seeded).',
+    'Holiday Inn', 5);
+}
+
+/**
+ * Writes SEED_ROWS, but only into an empty sheet — so running setupSheet()
+ * again later to re-apply formatting never duplicates them or disturbs real
+ * enquiries that have come in since.
+ * Returns true if it wrote anything.
+ */
+function seedSampleRows(sheet) {
+  if (sheet.getLastRow() > 1) return false;   // header only == empty
+
+  var rows = SEED_ROWS.map(function (s) {
+    return [
+      daysFromToday(-s.daysAgo),                                     // Timestamp
+      s.arrivalInDays ? daysFromToday(s.arrivalInDays) : '',         // Arrival
+      s.arrivalInDays ? daysFromToday(s.arrivalInDays + s.nights) : '', // Departure
+      s.enquiryType,
+      s.rooms || '',
+      s.guests || '',
+      s.page,
+      s.name,
+      "'" + s.phone,
+      s.email,
+      s.location || ''
+    ];
+  });
+
+  sheet.getRange(2, 1, rows.length, HEADERS.length).setValues(rows);
+  for (var i = 0; i < rows.length; i++) formatRow(sheet, 2 + i);
+  return true;
+}
+
+/** A Date n days from today at 10:30, so seeded timestamps look plausible. */
+function daysFromToday(n) {
+  var d = new Date();
+  d.setDate(d.getDate() + n);
+  d.setHours(10, 30, 0, 0);
+  return d;
 }
 
 function getSheet() {
@@ -229,24 +327,15 @@ function typeRule(range, text, colour) {
 
 /** Re-apply row formatting to whatever appendRow just added. */
 function formatLastRow(sheet) {
-  var row = sheet.getLastRow();
-  var range = sheet.getRange(row, 1, 1, HEADERS.length);
-  range.setFontFamily('Poppins').setFontSize(10).setVerticalAlignment('middle');
+  formatRow(sheet, sheet.getLastRow());
+}
+
+function formatRow(sheet, row) {
+  sheet.getRange(row, 1, 1, HEADERS.length)
+    .setFontFamily('Poppins').setFontSize(10).setVerticalAlignment('middle');
   sheet.getRange(row, 1).setNumberFormat('dd-mmm-yyyy hh:mm am/pm');
   sheet.getRange(row, 2, 1, 2).setNumberFormat('dd-mmm-yyyy');
   sheet.getRange(row, HEADERS.indexOf('Number') + 1).setNumberFormat('@');
   sheet.getRange(row, HEADERS.indexOf('Location') + 1).setBackground('#fff8e1');
   sheet.setRowHeight(row, 26);
-}
-
-function shareWithTeam() {
-  if (!TEAM_EMAILS.length) return;
-  var file = DriveApp.getFileById(SpreadsheetApp.getActiveSpreadsheet().getId());
-  TEAM_EMAILS.forEach(function (email) {
-    try {
-      file.addEditor(email);
-    } catch (err) {
-      Logger.log('Could not share with ' + email + ': ' + err);
-    }
-  });
 }

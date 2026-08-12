@@ -141,8 +141,12 @@ Until that URL is pasted into `js/config.js`, sheet logging is simply skipped
 and the email keeps working exactly as it does today — the form never breaks
 because this isn't wired up yet.
 
-The sheet is shared with the four teammates automatically as part of that
-setup (`TEAM_EMAILS` in the script) — their addresses still need filling in.
+The four entries you asked to be there already — Jayanta Sarkar, Rabi Kumar
+Darji, Nitin Jain and Ayantika Bhatacharjee — are written in by that same
+setup step, one per enquiry type so the sheet shows what each flow looks like
+before any real traffic arrives. **Their phone numbers and email addresses are
+placeholders** (only the names came from you) — replace them in `SEED_ROWS` in
+the script, or straight in the sheet afterwards.
 
 ## "Book Now" now routes differently depending on where it was clicked
 
