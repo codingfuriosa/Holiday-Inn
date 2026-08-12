@@ -230,11 +230,10 @@ p { margin: 0 0 1em; overflow-wrap: break-word; }
   display: flex; flex-direction: column; align-items: center; text-align: center; gap: 18px;
 }
 .tagline-centered {
-  display: flex; align-items: center; gap: 10px; margin: 0;
+  margin: 0; text-align: center;
   font-weight: 700; font-size: clamp(1.2rem, 2.8vw, 1.6rem);
   color: var(--hi-green-darker);
 }
-.tagline-centered svg { color: var(--hi-gold); flex-shrink: 0; }
 .tagline-divider { width: 64px; height: 3px; background: var(--hi-gold); border-radius: 2px; }
 .rating-row {
   display: flex; align-items: center; justify-content: center;

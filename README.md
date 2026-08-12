@@ -115,6 +115,13 @@ open the site live and submit the form yourself once with test details.
 
 ## What I changed in the newest round of feedback
 
+- **Removed the little icon in front of the tagline, and fixed its mobile
+  centering.** The icon sat to the left of the tagline text in a row, which
+  meant that once the text wrapped onto a second line on narrow phones, the
+  wrapped block was centered relative to the space *after* the icon, not
+  the actual screen — so it visually looked shifted off-center. With the
+  icon gone, the tagline is now genuinely centered at every width (checked
+  320px through desktop).
 - **Enquiry emails now also CC a second inbox** — `pritesh.zavery@ihg.com`,
   alongside the primary `ai@thejaingroup.com` — configurable in
   `js/config.js` (`CC_EMAIL`). We looked at moving off FormSubmit entirely

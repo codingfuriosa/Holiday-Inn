@@ -406,10 +406,7 @@ def tagline_rating_section(tagline, score):
     return """
   <section class="tagline-rating-section">
     <div class="container tagline-rating-inner">
-      <p class="tagline-centered">
-        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M2.5 19h19v2h-19v-2ZM12 2 5 8v4h1v6h3v-5h6v5h3v-6h1V8L12 2Z"/></svg>
-        {tagline}
-      </p>
+      <p class="tagline-centered">{tagline}</p>
       <div class="tagline-divider"></div>
       <div class="rating-row">
         <span class="stars" style="--fill:{fill}%"><span class="stars-fg">&#9733;&#9733;&#9733;&#9733;&#9733;</span></span>
