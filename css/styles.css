@@ -324,44 +324,47 @@ p { margin: 0 0 1em; overflow-wrap: break-word; }
 .bw-date-text.dp-placeholder { color: var(--hi-grey); }
 .bw-date-btn .bw-date-icon { position: static; transform: none; flex: 0 0 auto; }
 
+/* top/left are set by position() in js/main.js, which anchors the calendar to
+   whichever field opened it -- see the comment there for why CSS alone can't
+   do it once the widget stacks on mobile. */
 .dp {
   position: absolute;
   z-index: 60;
-  top: calc(100% + 10px);
+  top: 100%;
   left: 0;
   background: #fff;
   border: 1px solid var(--hi-border);
   border-radius: 10px;
-  box-shadow: 0 18px 48px rgba(0, 0, 0, .18);
-  padding: 18px;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, .16);
+  padding: 14px;
   width: max-content;
-  max-width: min(680px, calc(100vw - 32px));
+  max-width: min(520px, calc(100vw - 32px));
 }
 .dp[hidden] { display: none; }
 .dp-header {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 12px;
+  gap: 8px;
+  margin-bottom: 8px;
 }
 .dp-titles {
   flex: 1;
   display: flex;
   justify-content: space-around;
-  gap: 24px;
+  gap: 16px;
 }
 .dp-title {
   flex: 1;
   text-align: center;
   font-family: var(--font-head);
-  font-size: 1.02rem;
+  font-size: .95rem;
   font-weight: 700;
   color: var(--hi-green-dark);
 }
 .dp-nav {
   flex: 0 0 auto;
-  width: 34px;
-  height: 34px;
+  width: 30px;
+  height: 30px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -375,27 +378,27 @@ p { margin: 0 0 1em; overflow-wrap: break-word; }
 .dp-nav:hover:not(:disabled) { background: var(--hi-cream); border-color: var(--hi-green); }
 .dp-nav:disabled { opacity: .3; cursor: not-allowed; }
 
-.dp-months { display: flex; gap: 24px; }
-.dp-month { flex: 1 1 0; min-width: 252px; }
+.dp-months { display: flex; gap: 16px; }
+.dp-month { flex: 1 1 0; min-width: 203px; }
 .dp-dow, .dp-grid { display: grid; grid-template-columns: repeat(7, 1fr); }
-.dp-dow { margin-bottom: 6px; }
+.dp-dow { margin-bottom: 2px; }
 .dp-dow span {
   text-align: center;
-  font-size: .7rem;
+  font-size: .66rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: .04em;
+  letter-spacing: .03em;
   color: var(--hi-grey);
-  padding: 4px 0;
+  padding: 2px 0;
 }
-.dp-grid { gap: 2px 0; }
+.dp-grid { gap: 1px 0; }
 /* The cell carries the range band; the button inside carries the round pill.
    Keeping them on separate elements is what lets the band run edge to edge
    while the selected days still render as circles sitting on top of it. */
 .dp-cell {
   position: relative;
   aspect-ratio: 1 / 1;
-  min-height: 34px;
+  min-height: 27px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -410,7 +413,7 @@ p { margin: 0 0 1em; overflow-wrap: break-word; }
   border: none;
   background: transparent;
   font-family: inherit;
-  font-size: .86rem;
+  font-size: .8rem;
   color: var(--hi-black);
   border-radius: 50%;
   cursor: pointer;
@@ -429,13 +432,13 @@ p { margin: 0 0 1em; overflow-wrap: break-word; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 14px;
+  gap: 12px;
   flex-wrap: wrap;
-  margin-top: 14px;
-  padding-top: 14px;
+  margin-top: 10px;
+  padding-top: 10px;
   border-top: 1px solid var(--hi-grey-light);
 }
-.dp-summary { margin: 0; font-size: .84rem; font-weight: 600; color: var(--hi-green-dark); }
+.dp-summary { margin: 0; font-size: .78rem; font-weight: 600; color: var(--hi-green-dark); }
 .dp-actions { display: flex; align-items: center; gap: 10px; margin-left: auto; }
 .dp-clear {
   border: none;
@@ -449,7 +452,7 @@ p { margin: 0 0 1em; overflow-wrap: break-word; }
   padding: 6px 4px;
 }
 .dp-clear:hover { color: var(--hi-green); }
-.dp-done { padding: 9px 22px; font-size: .85rem; }
+.dp-done { padding: 8px 20px; font-size: .82rem; }
 
 /* ---------- Date fields (Arrival / Departure) ----------
    The wrapper is the positioning context for nothing now (the calendar hangs

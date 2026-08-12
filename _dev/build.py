@@ -1,9 +1,28 @@
 # -*- coding: utf-8 -*-
 """Generates the static Holiday Inn Kolkata Airport clone from shared partials."""
+import hashlib
 import os
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 SITE_ROOT = os.path.dirname(ROOT)
+
+def asset_version(*relative_paths):
+    """Short hash of the given files' contents, for cache-busting query strings.
+
+    Browsers cache css/js hard, and GitHub Pages serves them with a long
+    max-age. Without this, a visitor who has been to the site before keeps
+    running the OLD stylesheet and script after a deploy -- they see none of
+    the changes, and there is nothing they can do about it short of a manual
+    hard-refresh. Hashing the contents means the URL only changes when the
+    file actually changes: a deploy that touches nothing re-uses the cache,
+    and one that does touch them busts it automatically.
+    """
+    digest = hashlib.sha1()
+    for rel in relative_paths:
+        path = os.path.join(SITE_ROOT, rel)
+        with open(path, "rb") as handle:
+            digest.update(handle.read())
+    return digest.hexdigest()[:8]
 
 # Live domain, used to build absolute URLs for canonical tags, Open Graph,
 # Twitter Cards, JSON-LD structured data, robots.txt and sitemap.xml.
@@ -393,7 +412,7 @@ def page(title, description, current, hero_html, body_html, extra_head="", inclu
 <link rel="icon" href="assets/icons/favicon.png" type="image/png">
 {seo_head}
 {fonts}
-<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/styles.css?v={css_v}">
 {extra_head}
 </head>
 <body>
@@ -408,8 +427,8 @@ def page(title, description, current, hero_html, body_html, extra_head="", inclu
 {footer}
 {modal}
 {lightbox}
-<script src="js/config.js"></script>
-<script src="js/main.js"></script>
+<script src="js/config.js?v={js_v}"></script>
+<script src="js/main.js?v={js_v}"></script>
 </body>
 </html>
 """.format(
@@ -428,6 +447,8 @@ def page(title, description, current, hero_html, body_html, extra_head="", inclu
         footer=footer(),
         modal=MODAL,
         lightbox=lightbox_html,
+        css_v=asset_version("css/styles.css"),
+        js_v=asset_version("js/config.js", "js/main.js"),
     )
 
 def hero(eyebrow, h1, lead, image, small=False):
@@ -549,7 +570,9 @@ write("photos.html", page(
 ))
 
 # Thank you page uses a different (minimal) layout
-write("thank-you.html", thank_you.render(header(""), footer(), gtm_head=GTM_HEAD, gtm_body=GTM_BODY))
+write("thank-you.html", thank_you.render(header(""), footer(), gtm_head=GTM_HEAD, gtm_body=GTM_BODY,
+                                        css_v=asset_version("css/styles.css"),
+                                        js_v=asset_version("js/config.js", "js/main.js")))
 
 # ============================================================================
 # robots.txt + sitemap.xml

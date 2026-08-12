@@ -210,6 +210,37 @@ The visible fields are buttons showing a formatted date (`Thu 20 Aug`), backed
 by hidden inputs still carrying plain `YYYY-MM-DD` — so the email, the Sheet
 row and everything else downstream are completely unchanged.
 
+**Size and position, second pass.** The first version was 566×409 on desktop
+(too big for picking a date — now 452×327), and on mobile it appeared *below
+the Book Now button*, 261px away from the field you tapped. That second one
+was a real bug: the calendar was positioned at `top: 100%` of the whole
+booking widget, which on desktop is a single row (so 100% lands just under the
+fields) but on mobile is a stacked column — Arrival, Departure, Rooms &
+Guests, Book Now — so 100% meant below all four. It's now positioned from the
+opening field's own box in JS, which is correct in both layouts: 10px under
+whichever field you tapped, aligned to its left edge on desktop, spanning the
+card on mobile, and clamped so it never hangs past the card's edge.
+
+## Cache-busting on CSS and JS
+
+`css/styles.css` and `js/main.js` are now linked with a `?v=` query built from
+a hash of the file's own contents, e.g. `css/styles.css?v=38782d11`.
+
+Browsers cache CSS and JS hard, and GitHub Pages serves them with a long
+max-age — so without this, anyone who had visited the site before a deploy
+kept running the **old** stylesheet and script and saw none of the changes,
+with no way to fix it short of a manual hard-refresh. (This is exactly what
+happened while testing the date picker: the browser kept serving a stale
+`main.js` even in a brand-new tab.)
+
+Because the version is a content hash rather than a timestamp, a deploy that
+doesn't touch those files re-uses the cache as normal, and one that does
+touches busts it automatically. Nothing to remember at deploy time.
+
+**Also fixed:** `thank-you.html` never loaded `main.js` at all, despite
+rendering the full site header — so the hamburger menu could not be opened on
+that page on mobile. It now loads the same scripts as every other page.
+
 ## Booking widget date fields — mobile fix and restyle
 
 The Arrival and Departure fields were pushing out through the side of the

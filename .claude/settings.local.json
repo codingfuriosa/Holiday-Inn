@@ -16,7 +16,10 @@
       "Bash(cd \"C:/Users/Gigabyte/Documents/Holiday Inn\" && rm -f .claude/_tmp_gs.json && echo cleaned)",
       "Bash(python build.py)",
       "Bash(sed -n '/Kept for the Sheet row/,/};/p' js/main.js)",
-      "Bash(sed -n '/^function buildRow/,/^}/p' _dev/google-apps-script/Code.gs)"
+      "Bash(sed -n '/^function buildRow/,/^}/p' _dev/google-apps-script/Code.gs)",
+      "Bash(git fetch *)",
+      "Bash(gh auth *)",
+      "PowerShell($g = Get-Command gh -ErrorAction SilentlyContinue; if \\($g\\) { \"gh: \" + $g.Source; gh auth status } else { \"gh not installed\" })"
     ]
   }
 }

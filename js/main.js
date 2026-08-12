@@ -662,6 +662,36 @@
       // Never let the visitor page back into months that are entirely past.
       prevBtn.disabled = view.getFullYear() === today.getFullYear() && view.getMonth() === today.getMonth();
       renderSummary();
+      position();
+    }
+
+    /* Anchor the calendar under the field that opened it.
+       This has to be computed rather than left to CSS: a plain
+       "top: 100%" is relative to the whole widget, which is a single row on
+       desktop (fine) but a stacked column on mobile -- where 100% of the
+       widget means below the Rooms & Guests field AND the Book Now button,
+       leaving the calendar floating far below the field being edited.
+       Measuring from the opener's own box gets it right in both layouts. */
+    function position() {
+      var opener = widget.querySelector('[data-date-open="' + picking + '"]');
+      if (!opener) return;
+      var wr = widget.getBoundingClientRect();
+      var br = opener.getBoundingClientRect();
+      dp.style.top = (br.bottom - wr.top + 10) + "px";
+
+      // Narrow screens: span the card rather than trying to sit beside a field.
+      if (window.innerWidth < 700) {
+        dp.style.left = "0px";
+        dp.style.right = "0px";
+        return;
+      }
+
+      // Wider: line up with the field's left edge, but never let the calendar
+      // hang out past the edge of the card.
+      dp.style.right = "auto";
+      var left = br.left - wr.left;
+      var maxLeft = wr.width - dp.offsetWidth;
+      dp.style.left = Math.max(0, Math.min(left, maxLeft)) + "px";
     }
 
     function buildMonth(month) {
@@ -867,8 +897,10 @@
     document.addEventListener("keydown", function (e) {
       if (e.key === "Escape" && open) close();
     });
-    // Crossing the one/two-month breakpoint has to redraw the grid.
+    // Crossing the one/two-month breakpoint has to redraw the grid, and any
+    // resize or scroll moves the field the calendar is anchored to.
     window.addEventListener("resize", function () { if (open) render(); });
+    window.addEventListener("scroll", function () { if (open) position(); }, { passive: true });
 
     commit();
     render();
