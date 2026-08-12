@@ -115,15 +115,14 @@ open the site live and submit the form yourself once with test details.
 
 ## What I changed in the newest round of feedback
 
-- **Overview paragraphs are smaller on mobile — shrunk twice this round.**
-  They were using the plain 16px browser default with a roomy line-height,
-  which is fine on desktop but on a narrow phone turned each paragraph into
-  a wall of text several screens tall. First pass brought it to 14.7px,
-  which still read as "big" — now down to 13.6px with a tighter 1.45 line
-  height, sized smaller than the rest of the site's mobile body copy on
-  purpose since this is two full paragraphs back to back, not a short
-  blurb. Each paragraph is now roughly 35% shorter top-to-bottom than the
-  original.
+- **Overview is now one short paragraph instead of two.** After shrinking
+  the font size twice (16px → 14.7px → 13.6px) still felt like a lot of
+  text on a phone, the real fix was just less copy: merged both paragraphs
+  into a single tighter one that keeps the key facts (137 rooms, 4.7 km
+  from CCU Airport, New Town/Salt Lake Sector V access, rooftop pool,
+  24-hour fitness center, two restaurants, travel desk) without the extra
+  wording padding it out. Checked on both mobile and desktop — the
+  two-column layout still balances fine against the pool photo.
 - **Removed the little icon in front of the tagline, and fixed its mobile
   centering.** The icon sat to the left of the tagline text in a row, which
   meant that once the text wrapped onto a second line on narrow phones, the

@@ -5,13 +5,9 @@ BODY = """
       <div>
         <div class="hero-eyebrow" style="color:var(--hi-gold)">Overview</div>
         <h2>Business hotel near CCU Airport, in the heart of New Town</h2>
-        <p>Holiday Inn Kolkata Airport offers 137 spacious, air-conditioned rooms across Standard Rooms and Suite
-        categories, all spread over 6 floors. We're a business hotel conveniently located just 4.7 km from Netaji
-        Subhash Chandra Bose International Airport (CCU), with seamless connectivity to New Town, Eco Space Business
-        Park, Salt Lake Sector V and the major industrial hubs and tourist attractions of Kolkata.</p>
-        <p>Unwind at our rooftop outdoor pool, stay on schedule at our 24-hour fitness center, and enjoy two on-site
-        dining venues &mdash; Social Kitchen and Urban Kitchen &amp; Bar &mdash; along with a dedicated travel desk to
-        help you make the most of your stay.</p>
+        <p>Holiday Inn Kolkata Airport offers 137 spacious, air-conditioned rooms just 4.7 km from CCU Airport, with
+        easy access to New Town and Salt Lake Sector V. Unwind at our rooftop pool, stay on schedule at the 24-hour
+        fitness center, and enjoy two on-site restaurants plus a dedicated travel desk.</p>
         <a href="amenities.html" class="btn btn-outline">Explore Amenities</a>
       </div>
       <div>
