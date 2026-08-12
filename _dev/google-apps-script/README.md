@@ -25,9 +25,16 @@ I can't do for you.
    already be in the sheet — Jayanta Sarkar, Rabi Kumar Darji, Nitin Jain and
    Ayantika Bhatacharjee.
 
-   **The phone numbers and email addresses in there are placeholders** — only
-   the four names came from you. Replace them with the real details, either
-   here before running the setup, or directly in the sheet afterwards.
+   **Only the names are filled in — every other field is deliberately blank.**
+   Their real enquiry details aren't recoverable from the website side (see
+   the note below), so fill them in here from whatever record you have, or
+   leave them blank and type them into the sheet afterwards.
+
+   > **Why they can't be recovered automatically:** the site sends enquiries
+   > through FormSubmit in its account-less mode, which has no dashboard, no
+   > login and no stored history — it is purely a relay, and the delivered
+   > email is the only record that exists. So past enquiries can only come
+   > from the `ai@thejaingroup.com` inbox, never from FormSubmit itself.
 
 4. Save (the floppy icon).
 
@@ -41,8 +48,7 @@ I can't do for you.
    here.)
 3. Switch back to the Sheet. There's now a formatted **Enquiries** tab with the
    header row, column widths, date formats and colour coding in place, and the
-   four starting entries already filled in — one per enquiry type, so you can
-   see what each flow looks like before any real traffic arrives.
+   four starting entries — names filled in, the rest blank for you to complete.
 
 Seeding only happens into an empty sheet, so it's safe to re-run `setupSheet`
 later to re-apply formatting: it won't duplicate those four or touch real

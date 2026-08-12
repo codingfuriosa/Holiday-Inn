@@ -143,10 +143,12 @@ because this isn't wired up yet.
 
 The four entries you asked to be there already — Jayanta Sarkar, Rabi Kumar
 Darji, Nitin Jain and Ayantika Bhatacharjee — are written in by that same
-setup step, one per enquiry type so the sheet shows what each flow looks like
-before any real traffic arrives. **Their phone numbers and email addresses are
-placeholders** (only the names came from you) — replace them in `SEED_ROWS` in
-the script, or straight in the sheet afterwards.
+setup step. **Only their names are filled in; every other field is blank on
+purpose.** Their real enquiry details can't be recovered from the website
+side: the site relays mail through FormSubmit's account-less mode, which has
+no dashboard, no login and no stored history — the delivered email is the only
+record that exists. Fill the details into `SEED_ROWS` in the script, or
+straight into the sheet afterwards.
 
 ## "Book Now" now routes differently depending on where it was clicked
 

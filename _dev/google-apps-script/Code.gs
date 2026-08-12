@@ -30,67 +30,34 @@ var HEADERS = [
 ];
 
 /**
- * Four enquiries that should already be sitting in the sheet before the
- * website sends its first real one. Written by setupSheet(), and only ever
- * when the sheet is otherwise empty, so re-running setup can't duplicate them.
+ * The four entries that should already be in the sheet.
  *
- * >>> The phone numbers and email addresses below are PLACEHOLDERS. <<<
- * Only the four names came from you — replace the contact details with the
- * real ones (either here before running setupSheet, or straight in the sheet
- * afterwards, whichever is easier).
+ * >>> ONLY THE NAMES ARE REAL. Everything else is blank on purpose. <<<
  *
- * One row per enquiry type on purpose, so the sheet shows what each flow
- * actually looks like once it's live.
+ * An earlier version of this file filled in phone numbers, emails, dates and
+ * enquiry types for these four. That data was invented, not real, so it has
+ * been removed — a booking sheet with made-up guest details in it is worse
+ * than an empty one.
+ *
+ * Fill in the real values below before running setupSheet(), or leave them
+ * blank and type them straight into the sheet afterwards. Either works;
+ * nothing else in the script depends on them.
+ *
+ * Field notes:
+ *   daysAgo       when the enquiry came in, counted back from today
+ *                 (leave undefined to get today's date)
+ *   arrivalInDays / nights   arrival date, counted forward from today
+ *                 (leave both undefined for enquiries with no dates, e.g.
+ *                 Groups & Events)
+ *   enquiryType   one of: Enquiry for Standard Room / Enquiry for Suite /
+ *                 Groups & Events / General Enquiry / Offer Enquiry
+ *   page          which page it came from, e.g. Rooms / Home / Groups & Events
  */
 var SEED_ROWS = [
-  {
-    daysAgo: 6,
-    name: 'Jayanta Sarkar',
-    phone: '9800000001',
-    email: 'jayanta.sarkar@example.com',
-    enquiryType: 'Enquiry for Standard Room',
-    arrivalInDays: 8,
-    nights: 2,
-    rooms: '1',
-    guests: '2 Adults',
-    page: 'Rooms',
-    location: ''
-  },
-  {
-    daysAgo: 4,
-    name: 'Rabi Kumar Darji',
-    phone: '9800000002',
-    email: 'rabi.darji@example.com',
-    enquiryType: 'Enquiry for Suite',
-    arrivalInDays: 14,
-    nights: 3,
-    rooms: '1',
-    guests: '2 Adults, 1 Child',
-    page: 'Rooms',
-    location: ''
-  },
-  {
-    daysAgo: 2,
-    name: 'Nitin Jain',
-    phone: '9800000003',
-    email: 'nitin.jain@example.com',
-    enquiryType: 'Groups & Events',
-    page: 'Groups & Events',   // no dates - this flow never asks for them
-    location: ''
-  },
-  {
-    daysAgo: 1,
-    name: 'Ayantika Bhatacharjee',
-    phone: '9800000004',
-    email: 'ayantika.bhatacharjee@example.com',
-    enquiryType: 'General Enquiry',
-    arrivalInDays: 5,
-    nights: 1,
-    rooms: '2',
-    guests: '4 Adults',
-    page: 'Home',
-    location: ''
-  }
+  { name: 'Jayanta Sarkar',        phone: '', email: '', enquiryType: '', page: '', rooms: '', guests: '', location: '' },
+  { name: 'Rabi Kumar Darji',      phone: '', email: '', enquiryType: '', page: '', rooms: '', guests: '', location: '' },
+  { name: 'Nitin Jain',            phone: '', email: '', enquiryType: '', page: '', rooms: '', guests: '', location: '' },
+  { name: 'Ayantika Bhatacharjee', phone: '', email: '', enquiryType: '', page: '', rooms: '', guests: '', location: '' }
 ];
 
 /* ==========================================================================
@@ -187,16 +154,16 @@ function seedSampleRows(sheet) {
 
   var rows = SEED_ROWS.map(function (s) {
     return [
-      daysFromToday(-s.daysAgo),                                     // Timestamp
-      s.arrivalInDays ? daysFromToday(s.arrivalInDays) : '',         // Arrival
+      daysFromToday(s.daysAgo ? -s.daysAgo : 0),                        // Timestamp
+      s.arrivalInDays ? daysFromToday(s.arrivalInDays) : '',            // Arrival
       s.arrivalInDays ? daysFromToday(s.arrivalInDays + s.nights) : '', // Departure
-      s.enquiryType,
+      s.enquiryType || '',
       s.rooms || '',
       s.guests || '',
-      s.page,
-      s.name,
-      "'" + s.phone,
-      s.email,
+      s.page || '',
+      s.name || '',
+      s.phone ? "'" + s.phone : '',
+      s.email || '',
       s.location || ''
     ];
   });
