@@ -115,6 +115,10 @@ open the site live and submit the form yourself once with test details.
 
 ## What I changed in the newest round of feedback
 
+- **Footer copyright line updated** on all 9 pages to "© 2026 IHG. All
+  rights reserved. Most hotels are independently owned and operated." —
+  replacing the previous "Holiday Inn Kolkata Airport is independently
+  owned and operated. Site built for Jain Group." line.
 - **Overview is now one short paragraph instead of two.** After shrinking
   the font size twice (16px → 14.7px → 13.6px) still felt like a lot of
   text on a phone, the real fix was just less copy: merged both paragraphs

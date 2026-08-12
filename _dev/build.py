@@ -231,7 +231,7 @@ def footer():
       </div>
     </div>
     <div class="container footer-bottom">
-      <span>&copy; 2026 IHG. Holiday Inn Kolkata Airport is independently owned and operated. Site built for Jain Group.</span>
+      <span>&copy; 2026 IHG. All rights reserved. Most hotels are independently owned and operated.</span>
       <ul>
         <li><a href="https://www.ihg.com/content/us/en/customer-care/tc" target="_blank" rel="noopener">Terms of Use</a></li>
         <li><a href="https://www.ihg.com/content/us/en/customer-care/privacy-and-cookie-center" target="_blank" rel="noopener">Privacy Policy</a></li>
