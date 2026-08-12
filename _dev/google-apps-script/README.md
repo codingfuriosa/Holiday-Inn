@@ -21,20 +21,22 @@ I can't do for you.
 1. In that Sheet: **Extensions → Apps Script**.
 2. Delete whatever is in `Code.gs`, and paste in the full contents of
    [`Code.gs`](Code.gs) from this folder.
-3. Find `SEED_ROWS` near the top. It holds the four entries that should
-   already be in the sheet — Jayanta Sarkar, Rabi Kumar Darji, Nitin Jain and
-   Ayantika Bhatacharjee.
+3. Find `SEED_ROWS` near the top. It holds the four enquiries already received
+   through the site — Jayanta Sarkar, Rabi Kumar Darji, Nitin Jain and
+   Ayantika Bhattacherjee — transcribed from their FormSubmit emails, so the
+   sheet starts with the real history instead of empty.
 
-   **Only the names are filled in — every other field is deliberately blank.**
-   Their real enquiry details aren't recoverable from the website side (see
-   the note below), so fill them in here from whatever record you have, or
-   leave them blank and type them into the sheet afterwards.
+   **One field is blank: `timestamp`.** The submission date lives in each
+   FormSubmit email, and rather than guess at it I've left it empty. Fill each
+   one in as `'2026-08-10 14:30'` from the email's own date if you want the
+   column complete; leave blank and the cell just stays empty.
 
-   > **Why they can't be recovered automatically:** the site sends enquiries
-   > through FormSubmit in its account-less mode, which has no dashboard, no
-   > login and no stored history — it is purely a relay, and the delivered
-   > email is the only record that exists. So past enquiries can only come
-   > from the `ai@thejaingroup.com` inbox, never from FormSubmit itself.
+   > **Note on where past enquiries come from:** the site relays mail through
+   > FormSubmit's account-less mode, which has no dashboard, no login and no
+   > stored history. The delivered email is the only record that exists, so
+   > anything older can only be recovered from the `ai@thejaingroup.com`
+   > inbox, never from FormSubmit itself. That's exactly the gap the Google
+   > Sheet closes going forward.
 
 4. Save (the floppy icon).
 
@@ -48,7 +50,7 @@ I can't do for you.
    here.)
 3. Switch back to the Sheet. There's now a formatted **Enquiries** tab with the
    header row, column widths, date formats and colour coding in place, and the
-   four starting entries — names filled in, the rest blank for you to complete.
+   four existing enquiries already in rows 2–5.
 
 Seeding only happens into an empty sheet, so it's safe to re-run `setupSheet`
 later to re-apply formatting: it won't duplicate those four or touch real

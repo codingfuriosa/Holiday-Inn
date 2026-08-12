@@ -141,14 +141,23 @@ Until that URL is pasted into `js/config.js`, sheet logging is simply skipped
 and the email keeps working exactly as it does today — the form never breaks
 because this isn't wired up yet.
 
-The four entries you asked to be there already — Jayanta Sarkar, Rabi Kumar
-Darji, Nitin Jain and Ayantika Bhatacharjee — are written in by that same
-setup step. **Only their names are filled in; every other field is blank on
-purpose.** Their real enquiry details can't be recovered from the website
-side: the site relays mail through FormSubmit's account-less mode, which has
-no dashboard, no login and no stored history — the delivered email is the only
-record that exists. Fill the details into `SEED_ROWS` in the script, or
-straight into the sheet afterwards.
+The four enquiries already received through the site — Jayanta Sarkar, Rabi
+Kumar Darji, Nitin Jain and Ayantika Bhattacherjee — are written in by that
+same setup step, transcribed from their FormSubmit emails, so the sheet starts
+with the real history rather than empty. They came in under the form's
+previous field names, so a few values are translated into the current scheme:
+`Suite enquiry` becomes Enquiry Type `Enquiry for Suite`, `1 Room, 2 Adults`
+splits into Rooms `1` + Guests `2 Adults`, and the full page URL becomes a
+readable `Rooms` / `Home`.
+
+Only `timestamp` is left blank in those four — the submission date is in each
+email, and it wasn't worth guessing at. Fill it in from the emails if you want
+that column complete.
+
+Worth knowing: FormSubmit's account-less mode keeps no history at all — no
+dashboard, no login, nothing to look back through. The delivered email has
+been the only record of every enquiry to date. Closing that gap is the main
+practical win of the sheet.
 
 ## "Book Now" now routes differently depending on where it was clicked
 

@@ -30,34 +30,78 @@ var HEADERS = [
 ];
 
 /**
- * The four entries that should already be in the sheet.
+ * The four enquiries already received through the website, transcribed from
+ * the FormSubmit emails so the sheet starts with the real history rather than
+ * empty.
  *
- * >>> ONLY THE NAMES ARE REAL. Everything else is blank on purpose. <<<
+ * These arrived under the form's PREVIOUS field names, so a couple of values
+ * are translated into the current column scheme:
  *
- * An earlier version of this file filled in phone numbers, emails, dates and
- * enquiry types for these four. That data was invented, not real, so it has
- * been removed — a booking sheet with made-up guest details in it is worse
- * than an empty one.
+ *   Offer_or_Room "Suite enquiry"   -> Enquiry Type "Enquiry for Suite"
+ *   Offer_or_Room "General enquiry" -> Enquiry Type "General Enquiry"
+ *   Rooms_and_Guests "1 Room, 2 Adults" -> Rooms "1" + Guests "2 Adults"
+ *   Page <full URL>                 -> Form Page "Rooms" / "Home"
  *
- * Fill in the real values below before running setupSheet(), or leave them
- * blank and type them straight into the sheet afterwards. Either works;
- * nothing else in the script depends on them.
+ * `timestamp` is left empty on purpose: the emails carry the submission date,
+ * but that wasn't in what was passed to me, and guessing at it is exactly the
+ * mistake worth not repeating. Fill each one in as 'YYYY-MM-DD HH:MM' from the
+ * email's own date, or leave blank and the cell stays empty.
  *
- * Field notes:
- *   daysAgo       when the enquiry came in, counted back from today
- *                 (leave undefined to get today's date)
- *   arrivalInDays / nights   arrival date, counted forward from today
- *                 (leave both undefined for enquiries with no dates, e.g.
- *                 Groups & Events)
- *   enquiryType   one of: Enquiry for Standard Room / Enquiry for Suite /
- *                 Groups & Events / General Enquiry / Offer Enquiry
- *   page          which page it came from, e.g. Rooms / Home / Groups & Events
+ * Dates are plain 'YYYY-MM-DD' strings; blank means the enquiry had none.
  */
 var SEED_ROWS = [
-  { name: 'Jayanta Sarkar',        phone: '', email: '', enquiryType: '', page: '', rooms: '', guests: '', location: '' },
-  { name: 'Rabi Kumar Darji',      phone: '', email: '', enquiryType: '', page: '', rooms: '', guests: '', location: '' },
-  { name: 'Nitin Jain',            phone: '', email: '', enquiryType: '', page: '', rooms: '', guests: '', location: '' },
-  { name: 'Ayantika Bhatacharjee', phone: '', email: '', enquiryType: '', page: '', rooms: '', guests: '', location: '' }
+  {
+    timestamp: '',
+    name: 'Jayanta Sarkar',
+    phone: '9831228083',
+    email: 'sarkarj777@gmail.com',
+    enquiryType: 'Enquiry for Suite',
+    arrival: '',            // was "Not specified" - came straight off a room card
+    departure: '',
+    rooms: '',
+    guests: '',
+    page: 'Rooms',
+    location: ''
+  },
+  {
+    timestamp: '',
+    name: 'Rabi Kumar Darji',
+    phone: '8598022216',
+    email: 'rabikumardarji@gmail.com',
+    enquiryType: 'General Enquiry',
+    arrival: '2026-08-11',
+    departure: '2026-08-12',
+    rooms: '1',
+    guests: '2 Adults',
+    page: 'Home',
+    location: ''
+  },
+  {
+    timestamp: '',
+    name: 'Nitin Jain',
+    phone: '9006777447',
+    email: 'niks86@gmail.com',
+    enquiryType: 'General Enquiry',
+    arrival: '2026-08-13',
+    departure: '2026-08-14',
+    rooms: '1',
+    guests: '2 Adults',
+    page: 'Home',
+    location: ''
+  },
+  {
+    timestamp: '',
+    name: 'Ayantika Bhattacherjee',
+    phone: '9830712692',
+    email: 'ayantikabhattacherjee26@gmail.com',
+    enquiryType: 'General Enquiry',
+    arrival: '2026-08-12',
+    departure: '2026-08-13',
+    rooms: '1',
+    guests: '2 Adults',
+    page: 'Home',
+    location: ''
+  }
 ];
 
 /* ==========================================================================
@@ -154,9 +198,9 @@ function seedSampleRows(sheet) {
 
   var rows = SEED_ROWS.map(function (s) {
     return [
-      daysFromToday(s.daysAgo ? -s.daysAgo : 0),                        // Timestamp
-      s.arrivalInDays ? daysFromToday(s.arrivalInDays) : '',            // Arrival
-      s.arrivalInDays ? daysFromToday(s.arrivalInDays + s.nights) : '', // Departure
+      parseTimestamp(s.timestamp),
+      asDate(s.arrival),
+      asDate(s.departure),
       s.enquiryType || '',
       s.rooms || '',
       s.guests || '',
@@ -173,11 +217,16 @@ function seedSampleRows(sheet) {
   return true;
 }
 
-/** A Date n days from today at 10:30, so seeded timestamps look plausible. */
-function daysFromToday(n) {
-  var d = new Date();
-  d.setDate(d.getDate() + n);
-  d.setHours(10, 30, 0, 0);
+/** 'YYYY-MM-DD HH:MM' (or just 'YYYY-MM-DD') -> Date. Empty stays empty. */
+function parseTimestamp(value) {
+  if (!value) return '';
+  var bits = String(value).trim().split(/[ T]/);
+  var d = asDate(bits[0]);
+  if (!(d instanceof Date)) return value;
+  if (bits[1]) {
+    var hm = bits[1].split(':');
+    d.setHours(Number(hm[0]) || 0, Number(hm[1]) || 0, 0, 0);
+  }
   return d;
 }
 

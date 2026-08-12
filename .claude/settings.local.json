@@ -12,7 +12,8 @@
       "Bash(node --check _dev/google-apps-script/Code.gs)",
       "Bash(python -c ' *)",
       "Bash(cd \"C:/Users/Gigabyte/Documents/Holiday Inn\" && rm -f .claude/_tmp_gs.json && echo removed)",
-      "mcp__41402f79-7174-4ac8-9da9-cd3e1704afef__search_threads"
+      "mcp__41402f79-7174-4ac8-9da9-cd3e1704afef__search_threads",
+      "Bash(cd \"C:/Users/Gigabyte/Documents/Holiday Inn\" && rm -f .claude/_tmp_gs.json && echo cleaned)"
     ]
   }
 }
