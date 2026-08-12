@@ -113,6 +113,79 @@ come from your own inbox.
 If you'd rather not wait for real traffic to trigger that first email, just
 open the site live and submit the form yourself once with test details.
 
+## Enquiries are now also recorded in a Google Sheet
+
+Every enquiry/booking still emails `ai@thejaingroup.com` (CC
+`pritesh.zavery@ihg.com`) exactly as before — and now *also* appends a row to
+a Google Sheet, with these columns:
+
+| Timestamp | Arrival | Departure | Enquiry Type | Rooms | Guests | Form Page | Full Name | Number | Email | Location |
+|---|---|---|---|---|---|---|---|---|---|---|
+
+`Location` is deliberately left blank for the team to fill in by hand — it's
+tinted cream in the sheet so it reads as a manual column. Everything else is
+filled automatically. `Timestamp` is taken server-side, not from the
+visitor's device clock.
+
+The sheet arrives pre-formatted: brand-green frozen header row, a filter on
+every column, sensible column widths, real date cells (so Arrival/Departure
+sort and filter properly), phone numbers stored as text so a leading `0`
+survives, alternating row shading, and colour-coded Enquiry Types.
+
+**This needs one setup pass in your own Google account** — a static site has
+nowhere safe to keep a Google credential, so the sheet exposes a small Apps
+Script "Web App" URL that the site posts to instead. Full step-by-step
+instructions and the script itself are in
+[`_dev/google-apps-script/README.md`](_dev/google-apps-script/README.md).
+Until that URL is pasted into `js/config.js`, sheet logging is simply skipped
+and the email keeps working exactly as it does today — the form never breaks
+because this isn't wired up yet.
+
+The sheet is shared with the four teammates automatically as part of that
+setup (`TEAM_EMAILS` in the script) — their addresses still need filling in.
+
+## "Book Now" now routes differently depending on where it was clicked
+
+| Where the guest clicks | What happens | Enquiry Type recorded |
+|---|---|---|
+| **Rooms** page → Standard Rooms → Book Now | Goes to the **booking widget** on the Home page first (dates, rooms, guests), *then* the contact-details form | `Enquiry for Standard Room` |
+| **Rooms** page → Suite → Book Now | Same — widget first, then contact details | `Enquiry for Suite` |
+| Header / mobile bar → **Book Now** | Scrolls to the booking widget, then contact details | `General Enquiry` |
+| **Groups & Events** → Enquire Now | Straight to contact details (no dates asked) | `Groups & Events` |
+| An offer card → Book Now | Straight to contact details | `Offer Enquiry` (offer name in *Interested In*) |
+
+The room you clicked is shown as a small "Enquiring about: Standard Room"
+line inside the widget, so the detour via the date picker doesn't feel like
+it lost your place. That intent is cleared the moment it's used, and also
+cleared if you then click the general header "Book Now" instead — so a room
+enquiry can never leak into an unrelated later submission.
+
+Arrival, Departure, Rooms and Guests are blank in the sheet for the two
+flows that never go through the widget (Groups & Events, offer cards), rather
+than being filled with "Not specified" padding.
+
+## Booking widget date fields — mobile fix and restyle
+
+The Arrival and Departure fields were pushing out through the side of the
+white card on phones, and were awkward to tap. Both had the same root cause:
+a bare `<input type="date">` isn't a normal text box — every mobile engine
+gives it an intrinsic minimum width sized to the widest possible date string
+plus its own picker button, and iOS Safari treats that as a hard floor that
+`width: 100%` can't pull below. As a flex child it then refused to shrink and
+overflowed the card.
+
+Fixed by removing both the flex floor (`min-width: 0`) and the platform's
+intrinsic sizing (`appearance: none`), so the fields now obey their container
+at every width — verified contained with no page overflow at 320px, 375px and
+desktop.
+
+Since stripping the native appearance also strips the platform's calendar
+button, the fields are now drawn properly instead: a brand-green calendar
+icon on the right, matching borders, a green hover and focus ring, and the
+same height as the Rooms & Guests control beside them. Tapping **anywhere**
+on the field opens the native date picker — previously only the narrow date
+text itself was reliably tappable, which is what made them feel unresponsive.
+
 ## What I changed in the newest round of feedback
 
 - **Footer copyright line updated** on all 9 pages to "© 2026 IHG. All

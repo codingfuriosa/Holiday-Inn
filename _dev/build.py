@@ -70,13 +70,20 @@ def booking_widget():
   <div class="booking-widget-wrap">
     <div class="container">
       <div class="booking-widget" id="booking-widget">
+        <div class="bw-intent" hidden></div>
         <div class="bw-field">
           <label for="arrival">Arrival</label>
-          <input type="date" id="arrival" name="arrival">
+          <div class="bw-date">
+            <input type="date" id="arrival" name="arrival">
+            <span class="bw-date-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg></span>
+          </div>
         </div>
         <div class="bw-field">
           <label for="departure">Departure</label>
-          <input type="date" id="departure" name="departure">
+          <div class="bw-date">
+            <input type="date" id="departure" name="departure">
+            <span class="bw-date-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg></span>
+          </div>
         </div>
         <div class="bw-field rg-widget">
           <label>Rooms &amp; Guests</label>
@@ -150,7 +157,8 @@ MODAL = """
         <input type="hidden" name="Enquiry Type" data-field="enquiry_type">
         <input type="hidden" name="Arrival Date" data-field="arrival">
         <input type="hidden" name="Departure Date" data-field="departure">
-        <input type="hidden" name="Rooms &amp; Guests" data-field="rooms_guests">
+        <input type="hidden" name="Rooms" data-field="rooms">
+        <input type="hidden" name="Guests" data-field="guests">
         <input type="hidden" name="Interested In" data-field="interested_in">
         <input type="hidden" name="Submitted From Page" data-field="page">
         <p class="form-error"></p>

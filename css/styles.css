@@ -284,6 +284,86 @@ p { margin: 0 0 1em; overflow-wrap: break-word; }
 }
 .bw-field input[type="date"]:focus,
 .bw-field .rg-button:focus { outline: 2px solid var(--hi-green); outline-offset: 1px; }
+
+/* ---------- Date fields (Arrival / Departure) ----------
+   Two things are going on here, and both matter on phones:
+
+   1. SIZING. Left to itself, <input type="date"> is not a normal text box --
+      every mobile engine gives it an intrinsic minimum width sized to the
+      widest date string plus its own picker button, and iOS Safari in
+      particular treats that as a hard floor that "width: 100%" cannot pull
+      below. As a flex child (default "min-width: auto") it then refuses to
+      shrink, and pushes straight out through the side of the white booking
+      card -- which is the "first two fields are extending the card" bug.
+      "min-width: 0" removes the flex floor and "appearance: none" removes
+      the platform's intrinsic sizing, so the field finally obeys its
+      container at every width.
+
+   2. LOOK. Stripping the native appearance also strips the platform's own
+      calendar button, so we draw our own icon in the wrapper and give the
+      field the same border/hover/focus treatment as the rest of the widget,
+      instead of three visibly different-looking controls in one row.
+      js/main.js makes a tap anywhere on the wrapper open the native picker. */
+.bw-date { position: relative; display: block; width: 100%; min-width: 0; }
+.bw-field input[type="date"] {
+  -webkit-appearance: none;
+  appearance: none;
+  min-width: 0;
+  max-width: 100%;
+  padding-right: 42px;          /* room for our own calendar icon */
+  line-height: 1.3;
+  min-height: 46px;             /* consistent height across engines */
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+/* Hide each engine's own picker button - ours replaces it. */
+.bw-field input[type="date"]::-webkit-calendar-picker-indicator {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  opacity: 0;                   /* invisible, but still the tap target */
+  cursor: pointer;
+}
+.bw-field input[type="date"]::-webkit-inner-spin-button,
+.bw-field input[type="date"]::-webkit-clear-button { display: none; -webkit-appearance: none; }
+.bw-date-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  color: var(--hi-green);
+  pointer-events: none;         /* never steals the tap from the input */
+}
+/* Same box metrics on the Rooms & Guests button, so all three controls in the
+   widget line up exactly rather than sitting a couple of pixels apart. */
+.bw-field .rg-button {
+  min-height: 46px;
+  line-height: 1.3;
+  display: flex;
+  align-items: center;
+}
+.bw-field .rg-button:hover { border-color: var(--hi-green); }
+.bw-date:hover input[type="date"] { border-color: var(--hi-green); }
+.bw-field input[type="date"]:focus {
+  border-color: var(--hi-green);
+  box-shadow: 0 0 0 3px rgba(33, 98, 69, .14);
+  outline: none;
+}
+
+/* The "Enquiring about: Standard Room" chip, shown when a Rooms-page
+   Book Now sent the visitor here to pick dates first. */
+.bw-intent {
+  flex: 1 0 100%;
+  margin: -4px 0 2px;
+  font-size: .78rem;
+  font-weight: 600;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+  color: var(--hi-green);
+}
 .bw-cta { flex: 0 0 auto; }
 .bw-cta .btn { width: 100%; padding: 13px 30px; }
 
@@ -568,7 +648,12 @@ p { margin: 0 0 1em; overflow-wrap: break-word; }
      row layout - once the widget stacks into a column above, that same
      200px becomes a HEIGHT basis instead, forcing every field to 200px tall
      with huge gaps between them. Switch to an auto (content-sized) basis. */
-  .bw-field { flex: 1 1 auto; }
+  /* min-width also has to drop to 0 here: the 170px desktop floor combined
+     with a date input's own intrinsic width is what let these fields push
+     past the card's edge on narrow phones. */
+  .bw-field { flex: 1 1 auto; min-width: 0; max-width: 100%; }
+  .bw-field input[type="date"], .bw-field .rg-button { width: 100%; min-width: 0; }
+  .booking-widget { padding: 18px 16px; }
   .amenity-list { grid-template-columns: minmax(0, 1fr); }
   .footer-top { grid-template-columns: 1fr; }
   .hero { min-height: 340px; }

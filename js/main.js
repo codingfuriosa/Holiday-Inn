@@ -10,6 +10,7 @@
     initMobileNav();
     initRoomsGuests();
     initBookingWidget();
+    initDateFields();
     initBestRateScroll();
     initBookingModal();
     initLightbox();
@@ -54,9 +55,22 @@
      page's widget instead, since there's now exactly one booking widget
      on the whole site (per your request). */
   function initBestRateScroll() {
+    // Arriving at index.html#booking-widget (from a Rooms-page "Book Now", or
+    // any other page's header CTA) - the browser's own hash jump lines the
+    // widget's top edge up with the viewport top, which is exactly where the
+    // sticky header sits. Re-scroll past the header once the layout settles.
+    if (location.hash === "#booking-widget" && document.querySelector("#booking-widget")) {
+      setTimeout(goToBookingWidget, 60);
+    }
+
     document.querySelectorAll("[data-scroll-target]").forEach(function (el) {
       el.addEventListener("click", function (e) {
         e.preventDefault();
+        // The header / mobile-bar "Book Now" is the *general* entry point, so
+        // it must not inherit a room intent left over from a Rooms-page click.
+        setBookIntent("");
+        var intentEl = document.querySelector(".bw-intent");
+        if (intentEl) intentEl.hidden = true;
         var selector = el.getAttribute("data-scroll-target");
         var target = document.querySelector(selector);
         if (target) {
@@ -103,6 +117,13 @@
           btn.disabled = counts[key] >= limits[key][1];
         });
         widget.dataset.summary = button.textContent;
+        // The Google Sheet keeps Rooms and Guests in two separate columns, so
+        // expose them separately here rather than making the sheet code
+        // re-parse the combined "1 Room, 2 Adults" summary string.
+        widget.dataset.rooms = String(counts.rooms);
+        widget.dataset.guests =
+          counts.adults + (counts.adults === 1 ? " Adult" : " Adults") +
+          (counts.children > 0 ? ", " + counts.children + (counts.children === 1 ? " Child" : " Children") : "");
       }
 
       button.addEventListener("click", function (e) {
@@ -131,11 +152,53 @@
     });
   }
 
+  /* ---------------- "Book Now" intent ----------------------------------
+     Which button started the journey decides the Enquiry Type that ends up
+     in the email and the Google Sheet:
+
+       Rooms page "Book Now"      -> routed THROUGH the booking widget on the
+                                     home page (dates first), then submitted
+                                     as "Enquiry for Standard Room" / "Suite"
+       Header / mobile "Book Now" -> booking widget with no intent attached,
+                                     submitted as "General Enquiry"
+       Groups & Events            -> straight to contact details,
+                                     "Groups & Events"
+       Offer cards                -> straight to contact details, carrying the
+                                     offer name in "Interested In"
+
+     A room intent has to survive a page navigation (rooms.html ->
+     index.html#booking-widget), so it rides in sessionStorage rather than in
+     a variable. It is deliberately cleared the moment it is consumed, or as
+     soon as any other Book Now entry point is used, so a stale room intent
+     can never leak into an unrelated later enquiry. */
+  var INTENT_KEY = "hi_book_intent";
+
+  function setBookIntent(value) {
+    try {
+      if (value) sessionStorage.setItem(INTENT_KEY, value);
+      else sessionStorage.removeItem(INTENT_KEY);
+    } catch (e) { /* private mode - intent simply won't persist */ }
+  }
+
+  function getBookIntent() {
+    try { return sessionStorage.getItem(INTENT_KEY) || ""; } catch (e) { return ""; }
+  }
+
   /* ---------------- Booking widget (date defaults + validation) ---------------- */
   function initBookingWidget() {
     document.querySelectorAll(".booking-widget").forEach(function (widget) {
       var arrival = widget.querySelector('[name="arrival"]');
       var departure = widget.querySelector('[name="departure"]');
+
+      // Show what the visitor came here to book, if they arrived via a room
+      // card, so the widget doesn't look like a generic detour.
+      var intentEl = widget.querySelector(".bw-intent");
+      var intent = getBookIntent();
+      if (intentEl && intent) {
+        intentEl.textContent = "Enquiring about: " + intent;
+        intentEl.hidden = false;
+      }
+
       if (arrival && departure) {
         var today = new Date();
         var tomorrow = new Date(today.getTime() + 86400000);
@@ -158,25 +221,66 @@
         cta.addEventListener("click", function (e) {
           e.preventDefault();
           var rg = widget.querySelector(".rg-widget");
-          var summary = rg ? (rg.dataset.summary || rg.querySelector(".rg-button").textContent) : "";
+          var roomIntent = getBookIntent();
           openBookingModal({
             arrival: arrival ? arrival.value : "",
             departure: departure ? departure.value : "",
-            roomsGuests: summary,
-            offer: ""
+            rooms: rg ? (rg.dataset.rooms || "") : "",
+            guests: rg ? (rg.dataset.guests || "") : "",
+            // No room intent means the visitor came in through the header /
+            // mobile "Book Now", i.e. a plain general enquiry.
+            enquiryType: roomIntent ? "Enquiry for " + roomIntent : "General Enquiry"
           });
+          setBookIntent(""); // consumed - never carry it into a later enquiry
+          if (intentEl) intentEl.hidden = true;
         });
       }
     });
 
-    // "Book Now" / "Enquire Now" buttons on offer, room and event cards open
-    // the contact-details form directly - no need to go through the widget.
+    // Rooms page "Book Now": go to the booking widget FIRST (dates, rooms and
+    // guests), remembering which room was clicked. The contact-details form
+    // only opens afterwards, from the widget's own Book Now.
+    document.querySelectorAll("[data-book-intent]").forEach(function (btn) {
+      btn.addEventListener("click", function (e) {
+        e.preventDefault();
+        setBookIntent(btn.getAttribute("data-book-intent") || "");
+        goToBookingWidget();
+      });
+    });
+
+    // Groups & Events "Enquire Now": straight to contact details, and the
+    // enquiry type is exactly the label on the button's attribute.
+    document.querySelectorAll("[data-enquiry-direct]").forEach(function (btn) {
+      btn.addEventListener("click", function (e) {
+        e.preventDefault();
+        setBookIntent("");
+        openBookingModal({ enquiryType: btn.getAttribute("data-enquiry-direct") || "Enquiry" });
+      });
+    });
+
+    // Offer cards: straight to contact details, carrying the offer name.
     document.querySelectorAll("[data-offer-book]").forEach(function (btn) {
       btn.addEventListener("click", function (e) {
         e.preventDefault();
+        setBookIntent("");
         openBookingModal({ offer: btn.getAttribute("data-offer-book") || "" });
       });
     });
+  }
+
+  /* Scroll to the home page's booking widget, or navigate there first if we
+     aren't on the home page. Mirrors the header CTA's own scroll maths so the
+     sticky header doesn't end up covering the widget. */
+  function goToBookingWidget() {
+    var target = document.querySelector("#booking-widget");
+    if (!target) {
+      window.location.href = "index.html#booking-widget";
+      return;
+    }
+    var header = document.querySelector(".site-header");
+    var headerHeight = header ? header.getBoundingClientRect().height : 0;
+    var targetTop = target.getBoundingClientRect().top + window.pageYOffset;
+    window.scrollTo({ top: targetTop - headerHeight - 16, behavior: "smooth" });
   }
 
   function fmtDate(d) {
@@ -196,6 +300,7 @@
      On failure, fall back to a same-tab mailto: link (no popup window) so
      the enquiry still has a path to the inbox. */
   var modalEl, formEl, summaryEl, errorEl, statusEl, submitBtn, ajaxUrl;
+  var lastDetails = {};
 
   function initBookingModal() {
     modalEl = document.getElementById("booking-modal");
@@ -262,37 +367,52 @@
     clearFieldErrors();
 
     // A submission from the booking widget itself always carries real
-    // arrival/departure dates; a "Book Now"/"Enquire Now" from an offer,
-    // room or event card never does (it only carries an offer name). That
-    // distinction is what decides which fields actually get emailed below.
+    // arrival/departure dates; a "Book Now"/"Enquire Now" from an offer or
+    // event card never does. That distinction is what decides which fields
+    // actually get emailed below.
     var isBooking = !!(details.arrival || details.departure);
+    var enquiryType = details.enquiryType ||
+      (details.offer ? "Offer Enquiry" : "General Enquiry");
 
     var bits = [];
     if (details.arrival) bits.push("Arrival: " + details.arrival);
     if (details.departure) bits.push("Departure: " + details.departure);
-    if (details.roomsGuests) bits.push(details.roomsGuests);
+    if (details.rooms) bits.push(details.rooms + (details.rooms === "1" ? " Room" : " Rooms"));
+    if (details.guests) bits.push(details.guests);
     if (details.offer) bits.push("Enquiry: " + details.offer);
-    summaryEl.textContent = bits.length ? bits.join(" | ") : "General enquiry";
+    summaryEl.textContent = bits.length ? bits.join(" | ") : enquiryType;
+
+    // Kept for the Sheet row, which logs every enquiry in one shared shape
+    // regardless of which entry point produced it.
+    lastDetails = {
+      enquiryType: enquiryType,
+      arrival: isBooking ? (details.arrival || "") : "",
+      departure: isBooking ? (details.departure || "") : "",
+      rooms: isBooking ? (details.rooms || "") : "",
+      guests: isBooking ? (details.guests || "") : ""
+    };
 
     // Disabled fields are left out of the submitted FormData entirely, so
     // FormSubmit's emailed table only ever shows rows relevant to this
     // particular enquiry -- a widget booking never shows a blank
     // "Interested In" row, and an offer/room/event enquiry never shows
     // "Not specified" Arrival/Departure/Rooms & Guests rows.
+    setHidden("enquiry_type", enquiryType);
     if (isBooking) {
-      setHidden("enquiry_type", "Booking Request");
       setHidden("arrival", details.arrival || "");
       setHidden("departure", details.departure || "");
-      setHidden("rooms_guests", details.roomsGuests || "");
+      setHidden("rooms", details.rooms || "");
+      setHidden("guests", details.guests || "");
       disableField("interested_in");
-      setSubject("New Booking Request - Holiday Inn Kolkata Airport");
+      setSubject("New " + enquiryType + " - Holiday Inn Kolkata Airport");
     } else {
-      setHidden("enquiry_type", "General Enquiry");
-      setHidden("interested_in", details.offer || "General enquiry (via website)");
+      if (details.offer) setHidden("interested_in", details.offer);
+      else disableField("interested_in");
       disableField("arrival");
       disableField("departure");
-      disableField("rooms_guests");
-      setSubject("New Enquiry - Holiday Inn Kolkata Airport" + (details.offer ? " (" + details.offer + ")" : ""));
+      disableField("rooms");
+      disableField("guests");
+      setSubject("New Enquiry - Holiday Inn Kolkata Airport (" + (details.offer || enquiryType) + ")");
     }
     setHidden("page", location.href);
 
@@ -401,6 +521,22 @@
 
     var formData = new FormData(formEl);
 
+    // Log the row to Google Sheets in parallel with the email. Deliberately
+    // NOT chained after the email: the Sheet is the record of the enquiry, so
+    // it should still get written even if the email relay is having a bad day,
+    // and a Sheet failure must never block the guest's journey either.
+    logToSheet({
+      enquiryType: lastDetails.enquiryType || "General Enquiry",
+      arrival: lastDetails.arrival || "",
+      departure: lastDetails.departure || "",
+      rooms: lastDetails.rooms || "",
+      guests: lastDetails.guests || "",
+      page: pageLabel(),
+      name: name,
+      phone: phone,
+      email: email
+    });
+
     fetch(ajaxUrl, {
       method: "POST",
       body: formData,
@@ -435,6 +571,63 @@
         );
         window.location.href = "mailto:" + toEmail + "?subject=" + subject + "&body=" + body;
       });
+  }
+
+  /* ---------------- Google Sheets logging ------------------------------
+     Posts one row per enquiry to the Apps Script Web App configured as
+     SHEET_ENDPOINT in js/config.js (see _dev/google-apps-script/).
+
+     The body is sent as a plain string, with no custom Content-Type header,
+     on purpose: that keeps it a CORS "simple request", so the browser never
+     fires a preflight OPTIONS call -- which matters because Apps Script Web
+     Apps answer redirects, not OPTIONS, and a preflight would fail outright.
+     If the cross-origin read is still refused for any reason, we retry the
+     same POST in no-cors mode, where the row is written but the response is
+     opaque to us. Either way the caller never waits on this. */
+  function logToSheet(row) {
+    var endpoint = window.SITE_CONFIG && window.SITE_CONFIG.SHEET_ENDPOINT;
+    if (!endpoint) return; // not wired up yet - email still sends as normal
+    var body = JSON.stringify(row);
+    fetch(endpoint, { method: "POST", body: body })
+      .catch(function () {
+        return fetch(endpoint, { method: "POST", mode: "no-cors", body: body });
+      })
+      .catch(function () { /* logged best-effort; the email is the backstop */ });
+  }
+
+  /* Which page the enquiry was submitted from, as a readable label ("Rooms")
+     rather than a raw URL, since it becomes a Sheet column people read. */
+  function pageLabel() {
+    var file = (location.pathname.split("/").pop() || "index.html").toLowerCase();
+    var names = {
+      "index.html": "Home",
+      "": "Home",
+      "rooms.html": "Rooms",
+      "offers.html": "Offers",
+      "amenities.html": "Amenities",
+      "dining.html": "Dining",
+      "local-area.html": "Local Area",
+      "events.html": "Groups & Events",
+      "photos.html": "Photos"
+    };
+    return names[file] || file;
+  }
+
+  /* ---------------- Date fields ----------------------------------------
+     On phones a bare <input type="date"> is fiddly: only the narrow text run
+     is reliably tappable, so taps on the rest of the field appear to do
+     nothing. Open the native picker from a tap anywhere on the field. */
+  function initDateFields() {
+    document.querySelectorAll('.bw-date input[type="date"]').forEach(function (input) {
+      var wrap = input.closest(".bw-date");
+      if (!wrap) return;
+      wrap.addEventListener("click", function () {
+        if (typeof input.showPicker === "function") {
+          try { input.showPicker(); return; } catch (e) { /* fall through */ }
+        }
+        input.focus();
+      });
+    });
   }
 
   /* ---------------- Lightbox (works across every photo on the page) ---------------- */
