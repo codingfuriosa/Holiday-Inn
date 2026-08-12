@@ -221,6 +221,34 @@ opening field's own box in JS, which is correct in both layouts: 10px under
 whichever field you tapped, aligned to its left edge on desktop, spanning the
 card on mobile, and clamped so it never hangs past the card's edge.
 
+## Horizontal scroll on mobile — safety net added
+
+A horizontal scroll can no longer happen, from any cause. `html` and `body`
+now carry **`overflow-x: clip`**.
+
+The important detail is *`clip`*, not `hidden`. Setting `overflow-x: hidden`
+forces the other axis to `auto`, which turns the element into a scroll
+container and breaks `position: sticky` on every descendant — that is exactly
+what stopped the navbar sticking in an earlier round, and why the previous
+note here said not to use it. `clip` clips without creating a scroll
+container, so sticky is unaffected. Verified side by side: with `hidden` a
+sticky header scrolls away (top: -1000px); with `clip` it stays pinned at 0,
+and vertical scrolling is untouched.
+
+This is a backstop, not a licence to stop fixing causes — real overflow
+sources are still fixed at source, since clipping a broken layout only hides
+it. What it does buy is protection against things that only overflow on a real
+device and so can't be caught in a desktop browser. Browsers without `clip`
+support (Safari < 16) ignore the line and behave exactly as before.
+
+**On the reported scroll specifically:** it could not be reproduced against
+the current build — checked on all 9 pages, at 320/360/375/390/414/430/480/
+560/640/700/720px, and in every interactive state (menu open, date picker
+open, Rooms & Guests panel open, enquiry modal open). The live site at the
+time was still serving the *previous* build, which still had the
+`<input type="date">` fields whose intrinsic minimum width was the original
+cause of exactly this symptom on mobile.
+
 ## Cache-busting on CSS and JS
 
 `css/styles.css` and `js/main.js` are now linked with a `?v=` query built from

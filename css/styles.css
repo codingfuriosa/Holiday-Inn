@@ -25,12 +25,29 @@
 
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
-/* NOTE: deliberately no "overflow-x: hidden" here - Chrome breaks
-   "position: sticky" on any descendant when overflow-x is set to anything
-   but visible on html/body (this is what was stopping the navbar from
-   sticking). The real overflow sources (long emails/phone numbers in
-   grids, tables and cards) are fixed directly at the source below instead. */
-body { max-width: 100%; }
+/* Horizontal-overflow safety net.
+   ----------------------------------------------------------------------
+   Still deliberately NOT "overflow-x: hidden": setting hidden on one axis
+   forces the other axis to "auto", which turns the element into a scroll
+   container and breaks "position: sticky" on every descendant - that is
+   what stopped the navbar sticking previously.
+
+   "overflow-x: clip" is the one that does what was actually wanted here. It
+   clips without creating a scroll container, so sticky keeps working, and
+   unlike hidden it does not force the other axis. The result: nothing can
+   ever cause a horizontal scrollbar, including things that only overflow on
+   a real device (a mobile date input's intrinsic minimum width, say) and so
+   can't be caught by testing in a desktop browser.
+
+   This is a backstop, not a substitute for fixing causes - genuine overflow
+   sources are still fixed at the source below, because clipping a broken
+   layout only hides it. Browsers without "clip" support (Safari < 16) simply
+   ignore the line and behave exactly as before. */
+html { overflow-x: clip; }
+body {
+  max-width: 100%;
+  overflow-x: clip;
+}
 /* Kill the default blue/grey tap-highlight box mobile browsers flash on
    every tap (that's the "element turns blue when clicked" you're seeing),
    and replace the default focus ring with a subtler brand-green one that

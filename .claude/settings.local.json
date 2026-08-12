@@ -19,7 +19,9 @@
       "Bash(sed -n '/^function buildRow/,/^}/p' _dev/google-apps-script/Code.gs)",
       "Bash(git fetch *)",
       "Bash(gh auth *)",
-      "PowerShell($g = Get-Command gh -ErrorAction SilentlyContinue; if \\($g\\) { \"gh: \" + $g.Source; gh auth status } else { \"gh not installed\" })"
+      "PowerShell($g = Get-Command gh -ErrorAction SilentlyContinue; if \\($g\\) { \"gh: \" + $g.Source; gh auth status } else { \"gh not installed\" })",
+      "Bash(curl -s https://holidayinnkolairport.com/index.html)",
+      "Bash(echo \"--- exit:$? ---\")"
     ]
   }
 }
