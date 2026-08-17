@@ -11,6 +11,17 @@ def render(header_html, footer_html, gtm_head="", gtm_body="", css_v="", js_v=""
 <meta name="description" content="Thank you for your enquiry at Holiday Inn Kolkata Airport.">
 <meta name="robots" content="noindex, nofollow">
 <link rel="icon" href="assets/icons/favicon.png" type="image/png">
+<link rel="canonical" href="https://holidayinnkolairport.com/thank-you.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Holiday Inn Kolkata Airport">
+<meta property="og:title" content="Thank You | Holiday Inn Kolkata Airport">
+<meta property="og:description" content="Thank you for your enquiry at Holiday Inn Kolkata Airport.">
+<meta property="og:url" content="https://holidayinnkolairport.com/thank-you.html">
+<meta property="og:image" content="https://holidayinnkolairport.com/assets/images/holiday-inn-kolkata-6541707615-2x1.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Thank You | Holiday Inn Kolkata Airport">
+<meta name="twitter:description" content="Thank you for your enquiry at Holiday Inn Kolkata Airport.">
+<meta name="twitter:image" content="https://holidayinnkolairport.com/assets/images/holiday-inn-kolkata-6541707615-2x1.jpg">
 <link rel="stylesheet" href="css/styles.css?v={css_v}">
 </head>
 <body>

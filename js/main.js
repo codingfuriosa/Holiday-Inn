@@ -329,10 +329,14 @@
     refreshConfigFields();
 
     // Digits-only, max-10 phone field - strip anything else as the user types.
+    // Keeps the LAST 10 digits typed, not the first 10: guests very commonly
+    // type a country code first ("+91 9876543210" -> "919876543210"), and
+    // taking the first 10 there silently keeps "9198765432" -- a wrong
+    // number that still passes the 10-digit check with no warning.
     var phoneField = formEl.querySelector('[data-field="phone"]');
     if (phoneField) {
       phoneField.addEventListener("input", function () {
-        phoneField.value = phoneField.value.replace(/[^0-9]/g, "").slice(0, 10);
+        phoneField.value = phoneField.value.replace(/[^0-9]/g, "").slice(-10);
       });
     }
 
@@ -439,7 +443,11 @@
   }
 
   /* ---- Validation ---- */
-  var NAME_RE = /^[A-Za-zÀ-ɏ]+(?:[.'\- ][A-Za-zÀ-ɏ]+)*$/;
+  // \p{L} (any Unicode letter) plus \p{M} (combining marks) rather than a
+  // Latin-only range -- Devanagari/Bengali names are built from base letters
+  // PLUS separate combining vowel signs (matras), which are marks, not
+  // letters, so a letters-only range rejected every such name outright.
+  var NAME_RE = /^[\p{L}\p{M}]+(?:[.'\- ][\p{L}\p{M}]+)*$/u;
   var EMAIL_RE = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
   var PHONE_RE = /^[0-9]{10}$/;
 
@@ -559,9 +567,22 @@
         var ccEmail = window.SITE_CONFIG && window.SITE_CONFIG.CC_EMAIL;
         var subjectField = formEl.querySelector('[name="_subject"]');
         var subject = encodeURIComponent((subjectField && subjectField.value) || "New Enquiry - Holiday Inn Kolkata Airport");
-        var body = encodeURIComponent(
-          "Name: " + name + "\nPhone: " + phone + "\nEmail: " + email
-        );
+        // Mirror every field the AJAX path would have emailed (the FormSubmit
+        // table columns), not just Name/Phone/Email -- otherwise a guest who
+        // hits this fallback gets a blank-looking draft with no arrival,
+        // departure, rooms/guests or which offer/room prompted the enquiry,
+        // and staff have to call back just to find out what was wanted.
+        var interestedField = formEl.querySelector('[data-field="interested_in"]');
+        var interestedIn = (interestedField && !interestedField.disabled) ? interestedField.value : "";
+        var bodyLines = ["Enquiry Type: " + (lastDetails.enquiryType || "General Enquiry")];
+        if (lastDetails.arrival) bodyLines.push("Arrival Date: " + lastDetails.arrival);
+        if (lastDetails.departure) bodyLines.push("Departure Date: " + lastDetails.departure);
+        if (lastDetails.rooms) bodyLines.push("Rooms: " + lastDetails.rooms);
+        if (lastDetails.guests) bodyLines.push("Guests: " + lastDetails.guests);
+        if (interestedIn) bodyLines.push("Interested In: " + interestedIn);
+        bodyLines.push("Submitted From Page: " + pageLabel());
+        bodyLines.push("Name: " + name, "Phone: " + phone, "Email: " + email);
+        var body = encodeURIComponent(bodyLines.join("\n"));
         var mailtoUrl = "mailto:" + toEmail + "?subject=" + subject + "&body=" + body;
         if (ccEmail) mailtoUrl += "&cc=" + encodeURIComponent(ccEmail);
         window.location.href = mailtoUrl;
