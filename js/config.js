@@ -12,10 +12,11 @@
    below, asking to confirm you own that inbox. Click the link in that email
    once — every submission after that (including that very first one, once
    confirmed) delivers straight to the inbox automatically, with no further
-   setup. CC_EMAIL rides along on the same submission, so it should not need
-   a separate activation of its own -- but since FormSubmit doesn't document
-   this explicitly, keep an eye on the CC inbox after the first real
-   submission to make sure it actually arrived there too.
+   setup. CC_EMAIL (a comma-separated list) rides along on the same
+   submission, so its addresses should not need a separate activation of
+   their own -- but since FormSubmit doesn't document this explicitly, keep
+   an eye on those CC inboxes after the first real submission to make sure
+   it actually arrived there too.
 
    IMPORTANT LIMITATION: FormSubmit does not offer any way to change the
    visible "From" sender name/address that recipients see -- it will always
@@ -35,5 +36,5 @@
    ========================================================================== */
 window.SITE_CONFIG = {
   TO_EMAIL: "ai@thejaingroup.com",
-  CC_EMAIL: "pritesh.zavery@ihg.com"
+  CC_EMAIL: "pritesh.zavery@ihg.com,sales4@holidayinnkolairport.com,reservations@holidayinnkolairport.com"
 };

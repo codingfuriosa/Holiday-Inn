@@ -219,9 +219,10 @@
       }
     }
 
-    // Every enquiry also CCs a second inbox (e.g. an IHG-side contact),
-    // configured in js/config.js. Left blank/disabled entirely if not set,
-    // rather than sending an empty _cc field.
+    // Every enquiry also CCs additional inboxes (e.g. an IHG-side contact,
+    // sales, reservations), configured as a comma-separated list in
+    // js/config.js. Left blank/disabled entirely if not set, rather than
+    // sending an empty _cc field.
     var ccEmail = window.SITE_CONFIG && window.SITE_CONFIG.CC_EMAIL;
     var ccField = formEl.querySelector('[data-field="_cc"]');
     if (ccField) {
@@ -428,12 +429,15 @@
         // whichever subject openBookingModal already set for this specific
         // enquiry (booking vs. offer/room/event), instead of a generic one.
         var toEmail = (window.SITE_CONFIG && window.SITE_CONFIG.TO_EMAIL) || "ai@thejaingroup.com";
+        var ccEmail = window.SITE_CONFIG && window.SITE_CONFIG.CC_EMAIL;
         var subjectField = formEl.querySelector('[name="_subject"]');
         var subject = encodeURIComponent((subjectField && subjectField.value) || "New Enquiry - Holiday Inn Kolkata Airport");
         var body = encodeURIComponent(
           "Name: " + name + "\nPhone: " + phone + "\nEmail: " + email
         );
-        window.location.href = "mailto:" + toEmail + "?subject=" + subject + "&body=" + body;
+        var mailtoUrl = "mailto:" + toEmail + "?subject=" + subject + "&body=" + body;
+        if (ccEmail) mailtoUrl += "&cc=" + encodeURIComponent(ccEmail);
+        window.location.href = mailtoUrl;
       });
   }
 
