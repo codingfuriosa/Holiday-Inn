@@ -286,6 +286,33 @@
   var modalEl, formEl, summaryEl, errorEl, statusEl, submitBtn, ajaxUrl;
   var lastDetails = {};
 
+  // The "_next" and "_cc" hidden fields are driven by js/config.js rather
+  // than a static HTML value, but formEl.reset() (called on every single
+  // openBookingModal(), not just once at init) restores both to their blank
+  // HTML default. Re-applying the config here after every reset is what
+  // actually keeps CC_EMAIL's recipients on every enquiry, instead of only
+  // the very first one submitted per page load.
+  function refreshConfigFields() {
+    var nextField = formEl.querySelector('[name="_next"]');
+    if (nextField) {
+      try {
+        nextField.value = new URL("thank-you.html", window.location.href).href;
+      } catch (e) {
+        nextField.value = "thank-you.html";
+      }
+    }
+    var ccEmail = window.SITE_CONFIG && window.SITE_CONFIG.CC_EMAIL;
+    var ccField = formEl.querySelector('[data-field="_cc"]');
+    if (ccField) {
+      if (ccEmail) {
+        ccField.value = ccEmail;
+        ccField.disabled = false;
+      } else {
+        ccField.disabled = true;
+      }
+    }
+  }
+
   function initBookingModal() {
     modalEl = document.getElementById("booking-modal");
     if (!modalEl) return;
@@ -299,28 +326,7 @@
     // actually hosted. The AJAX endpoint never navigates the browser away.
     var toEmail = (window.SITE_CONFIG && window.SITE_CONFIG.TO_EMAIL) || "ai@thejaingroup.com";
     ajaxUrl = "https://formsubmit.co/ajax/" + toEmail;
-    var nextField = formEl.querySelector('[name="_next"]');
-    if (nextField) {
-      try {
-        nextField.value = new URL("thank-you.html", window.location.href).href;
-      } catch (e) {
-        nextField.value = "thank-you.html";
-      }
-    }
-
-    // Every enquiry also CCs additional inboxes (e.g. an IHG-side contact,
-    // sales, reservations), configured as a comma-separated list in
-    // js/config.js. Left blank/disabled entirely if not set, rather than
-    // sending an empty _cc field.
-    var ccEmail = window.SITE_CONFIG && window.SITE_CONFIG.CC_EMAIL;
-    var ccField = formEl.querySelector('[data-field="_cc"]');
-    if (ccField) {
-      if (ccEmail) {
-        ccField.value = ccEmail;
-      } else {
-        ccField.disabled = true;
-      }
-    }
+    refreshConfigFields();
 
     // Digits-only, max-10 phone field - strip anything else as the user types.
     var phoneField = formEl.querySelector('[data-field="phone"]');
@@ -345,6 +351,7 @@
     if (!modalEl) return;
     details = details || {};
     formEl.reset();
+    refreshConfigFields();
     formEl.querySelector('[data-field="agree"]').checked = true;
     errorEl.classList.remove("show");
     errorEl.textContent = "";
