@@ -21,7 +21,7 @@ BODY = """
             <p>Business-like decor and comfort across our 6 floors, with smoking rooms available only on the 6th
             floor. Each Standard Room includes a work desk, coffee &amp; tea maker, in-room safe and daily
             housekeeping.</p>
-            <div class="card-cta"><button type="button" class="btn btn-primary btn-block" data-offer-book="Standard Rooms enquiry">Book Now</button></div>
+            <div class="card-cta"><button type="button" class="btn btn-primary btn-block" data-book-intent="Standard Room">Book Now</button></div>
           </div>
         </div>
 
@@ -37,7 +37,7 @@ BODY = """
             </div>
             <p>Extra space to relax or work, with a separate seating area, bathrobe, slippers, mini bar and
             complimentary bottled water &mdash; ideal for extended business stays or a touch of extra comfort.</p>
-            <div class="card-cta"><button type="button" class="btn btn-primary btn-block" data-offer-book="Suite enquiry">Book Now</button></div>
+            <div class="card-cta"><button type="button" class="btn btn-primary btn-block" data-book-intent="Suite">Book Now</button></div>
           </div>
         </div>
 

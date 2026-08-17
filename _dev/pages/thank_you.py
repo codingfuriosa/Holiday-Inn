@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-def render(header_html, footer_html, gtm_head="", gtm_body=""):
+def render(header_html, footer_html, gtm_head="", gtm_body="", css_v="", js_v=""):
     return """<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,7 +11,7 @@ def render(header_html, footer_html, gtm_head="", gtm_body=""):
 <meta name="description" content="Thank you for your enquiry at Holiday Inn Kolkata Airport.">
 <meta name="robots" content="noindex, nofollow">
 <link rel="icon" href="assets/icons/favicon.png" type="image/png">
-<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/styles.css?v={css_v}">
 </head>
 <body>
 {gtm_body}
@@ -39,6 +39,13 @@ def render(header_html, footer_html, gtm_head="", gtm_body=""):
     }} catch (e) {{ /* ignore */ }}
   }})();
 </script>
+<!-- This page renders the full site header, which includes the hamburger menu
+     and the mobile Book Now bar - both of which are wired up by main.js. It
+     was previously omitted here, so the mobile menu simply could not be opened
+     on the Thank You page. -->
+<script src="js/config.js?v={js_v}"></script>
+<script src="js/main.js?v={js_v}"></script>
 </body>
 </html>
-""".format(header=header_html, footer=footer_html, gtm_head=gtm_head, gtm_body=gtm_body)
+""".format(header=header_html, footer=footer_html, gtm_head=gtm_head, gtm_body=gtm_body,
+           css_v=css_v, js_v=js_v)

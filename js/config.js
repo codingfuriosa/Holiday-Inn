@@ -34,7 +34,24 @@
    redirect (back to thank-you.html) is worked out automatically from
    whatever domain the page is actually running on.
    ========================================================================== */
+/* --------------------------------------------------------------------------
+   Google Sheets logging
+   --------------------------------------------------------------------------
+   Every enquiry/booking is ALSO written as a row to a Google Sheet, on top of
+   the email above. That happens through a Google Apps Script "Web App" that
+   you deploy once from the Sheet itself — the script source is in
+   _dev/google-apps-script/Code.gs, with step-by-step setup instructions in
+   _dev/google-apps-script/README.md.
+
+   Paste the deployment URL below. It looks like:
+     https://script.google.com/macros/s/AKfycb..................../exec
+
+   Leave it as an empty string and the Sheet logging is simply skipped — the
+   email still sends exactly as before, so the form never breaks just because
+   this isn't wired up yet.
+   -------------------------------------------------------------------------- */
 window.SITE_CONFIG = {
   TO_EMAIL: "ai@thejaingroup.com",
-  CC_EMAIL: "pritesh.zavery@ihg.com,sales4@holidayinnkolairport.com,reservations@holidayinnkolairport.com"
+  CC_EMAIL: "pritesh.zavery@ihg.com,sales4@holidayinnkolairport.com,reservations@holidayinnkolairport.com",
+  SHEET_ENDPOINT: "https://script.google.com/macros/s/AKfycbxQSHxgQ1D2ZD8WFGdNOTpIOJUynkjWEtMmTtdvQJXCjdHt-2bYTL9wHs0JnWbMGFc/exec"
 };

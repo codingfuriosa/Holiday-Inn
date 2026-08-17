@@ -1,9 +1,28 @@
 # -*- coding: utf-8 -*-
 """Generates the static Holiday Inn Kolkata Airport clone from shared partials."""
+import hashlib
 import os
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 SITE_ROOT = os.path.dirname(ROOT)
+
+def asset_version(*relative_paths):
+    """Short hash of the given files' contents, for cache-busting query strings.
+
+    Browsers cache css/js hard, and GitHub Pages serves them with a long
+    max-age. Without this, a visitor who has been to the site before keeps
+    running the OLD stylesheet and script after a deploy -- they see none of
+    the changes, and there is nothing they can do about it short of a manual
+    hard-refresh. Hashing the contents means the URL only changes when the
+    file actually changes: a deploy that touches nothing re-uses the cache,
+    and one that does touch them busts it automatically.
+    """
+    digest = hashlib.sha1()
+    for rel in relative_paths:
+        path = os.path.join(SITE_ROOT, rel)
+        with open(path, "rb") as handle:
+            digest.update(handle.read())
+    return digest.hexdigest()[:8]
 
 # Live domain, used to build absolute URLs for canonical tags, Open Graph,
 # Twitter Cards, JSON-LD structured data, robots.txt and sitemap.xml.
@@ -65,18 +84,63 @@ def header(current):
   </div>
 """.format(nav=build_nav(current))
 
+CAL_ICON = ('<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" '
+            'stroke-width="1.8" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="2"/>'
+            '<path d="M8 3v4M16 3v4M3 10h18"/></svg>')
+
+# The Arrival/Departure fields deliberately do NOT use <input type="date">.
+# That control renders the browser's own picker, which cannot be styled at all
+# (it's drawn by the OS, outside the page), and looked out of place against the
+# rest of the widget. They're now buttons showing a formatted date, backed by a
+# hidden input that still carries the plain YYYY-MM-DD value everything else
+# reads. js/main.js draws the calendar itself - see initDatePicker().
+DATE_PICKER = """
+  <div class="dp" id="date-picker" role="dialog" aria-modal="false" aria-label="Choose your dates" hidden>
+    <div class="dp-header">
+      <button type="button" class="dp-nav dp-prev" aria-label="Previous month">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <div class="dp-titles"></div>
+      <button type="button" class="dp-nav dp-next" aria-label="Next month">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+    </div>
+    <div class="dp-months"></div>
+    <div class="dp-footer">
+      <p class="dp-summary" aria-live="polite"></p>
+      <div class="dp-actions">
+        <button type="button" class="dp-clear">Reset</button>
+        <button type="button" class="btn btn-primary dp-done">Done</button>
+      </div>
+    </div>
+  </div>
+"""
+
 def booking_widget():
     return """
   <div class="booking-widget-wrap">
     <div class="container">
       <div class="booking-widget" id="booking-widget">
+        <div class="bw-intent" hidden></div>
         <div class="bw-field">
-          <label for="arrival">Arrival</label>
-          <input type="date" id="arrival" name="arrival">
+          <label for="arrival-btn">Arrival</label>
+          <div class="bw-date">
+            <button type="button" class="bw-date-btn" id="arrival-btn" data-date-open="arrival" aria-haspopup="dialog" aria-expanded="false">
+              <span class="bw-date-text"></span>
+              <span class="bw-date-icon" aria-hidden="true">{cal_icon}</span>
+            </button>
+            <input type="hidden" id="arrival" name="arrival">
+          </div>
         </div>
         <div class="bw-field">
-          <label for="departure">Departure</label>
-          <input type="date" id="departure" name="departure">
+          <label for="departure-btn">Departure</label>
+          <div class="bw-date">
+            <button type="button" class="bw-date-btn" id="departure-btn" data-date-open="departure" aria-haspopup="dialog" aria-expanded="false">
+              <span class="bw-date-text"></span>
+              <span class="bw-date-icon" aria-hidden="true">{cal_icon}</span>
+            </button>
+            <input type="hidden" id="departure" name="departure">
+          </div>
         </div>
         <div class="bw-field rg-widget">
           <label>Rooms &amp; Guests</label>
@@ -110,10 +174,11 @@ def booking_widget():
           </div>
         </div>
         <div class="bw-cta"><button type="button" class="btn btn-primary">Book Now</button></div>
+{date_picker}
       </div>
     </div>
   </div>
-"""
+""".format(date_picker=DATE_PICKER, cal_icon=CAL_ICON)
 
 # The form posts directly to FormSubmit.co (https://formsubmit.co) -- a
 # no-account-needed email relay. js/main.js fills in the action URL and the
@@ -150,7 +215,8 @@ MODAL = """
         <input type="hidden" name="Enquiry Type" data-field="enquiry_type">
         <input type="hidden" name="Arrival Date" data-field="arrival">
         <input type="hidden" name="Departure Date" data-field="departure">
-        <input type="hidden" name="Rooms &amp; Guests" data-field="rooms_guests">
+        <input type="hidden" name="Rooms" data-field="rooms">
+        <input type="hidden" name="Guests" data-field="guests">
         <input type="hidden" name="Interested In" data-field="interested_in">
         <input type="hidden" name="Submitted From Page" data-field="page">
         <p class="form-error"></p>
@@ -346,7 +412,7 @@ def page(title, description, current, hero_html, body_html, extra_head="", inclu
 <link rel="icon" href="assets/icons/favicon.png" type="image/png">
 {seo_head}
 {fonts}
-<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/styles.css?v={css_v}">
 {extra_head}
 </head>
 <body>
@@ -361,8 +427,8 @@ def page(title, description, current, hero_html, body_html, extra_head="", inclu
 {footer}
 {modal}
 {lightbox}
-<script src="js/config.js"></script>
-<script src="js/main.js"></script>
+<script src="js/config.js?v={js_v}"></script>
+<script src="js/main.js?v={js_v}"></script>
 </body>
 </html>
 """.format(
@@ -381,6 +447,8 @@ def page(title, description, current, hero_html, body_html, extra_head="", inclu
         footer=footer(),
         modal=MODAL,
         lightbox=lightbox_html,
+        css_v=asset_version("css/styles.css"),
+        js_v=asset_version("js/config.js", "js/main.js"),
     )
 
 def hero(eyebrow, h1, lead, image, small=False):
@@ -502,7 +570,9 @@ write("photos.html", page(
 ))
 
 # Thank you page uses a different (minimal) layout
-write("thank-you.html", thank_you.render(header(""), footer(), gtm_head=GTM_HEAD, gtm_body=GTM_BODY))
+write("thank-you.html", thank_you.render(header(""), footer(), gtm_head=GTM_HEAD, gtm_body=GTM_BODY,
+                                        css_v=asset_version("css/styles.css"),
+                                        js_v=asset_version("js/config.js", "js/main.js")))
 
 # ============================================================================
 # robots.txt + sitemap.xml

@@ -54,7 +54,7 @@ BODY = """
             <dt>Hotel phone</dt><dd><a href="tel:+913366996699">+91-33-6699-6699</a></dd>
             <dt>Toll-free (Intl.)</dt><dd><a href="tel:18778343613">1-877-834-3613</a></dd>
           </dl>
-          <button type="button" class="btn btn-primary btn-block" style="margin-top:14px;" data-offer-book="Groups &amp; Events enquiry">Enquire Now</button>
+          <button type="button" class="btn btn-primary btn-block" style="margin-top:14px;" data-enquiry-direct="Groups &amp; Events">Enquire Now</button>
         </div>
       </div>
     </div>
